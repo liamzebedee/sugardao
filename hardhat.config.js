@@ -18,5 +18,13 @@ task("accounts", "Prints the list of accounts", async () => {
  */
 module.exports = {
   solidity: "0.5.16",
+  defaultNetwork: 'localhost',
+  networks: {
+		localhost: {
+			gas: 12e6,
+			blockGasLimit: 12e6,
+			url: 'http://localhost:8545',
+		},
+  }
 };
 

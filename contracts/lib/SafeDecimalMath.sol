@@ -186,7 +186,7 @@ library SafeDecimalMath {
     }
 
     function dist(uint a, uint b) internal pure returns (uint) {
-        return a > b ? b - a : a - b;
+        return a < b ? b - a : a - b;
     }
 
     function floorsub(uint a, uint b) internal pure returns (uint) {

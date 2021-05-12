@@ -25,10 +25,10 @@ async function deployContract({ contract, params }) {
   const instance = await Template.deploy(
     ...params
   );
-  const address = instance.address
+  const address = (await instance.deployed()).address
   
   console.debug(`Deployed ${green(contract)} to ${address}`)
-
+  
   deployedContracts[contract] = instance
   
   return instance
