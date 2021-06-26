@@ -1,4 +1,5 @@
 
+
 const optimismNetworkConfigs = {
     test: {
         chainId: '0x1a4',
@@ -10,6 +11,7 @@ const optimismNetworkConfigs = {
             'https://optimism.io/images/metamask_icon.png',
         ],
     },
+
     local: {
         chainId: '0x1a4',
         chainName: 'Optimism Local',
@@ -29,7 +31,6 @@ const addOptimismNetworkToMetamask = async ({ ethereum }) => {
         params: [optimismNetworkConfigs.test],
     });
 }
-
 
 
 

@@ -25,6 +25,8 @@ ts-node sugarbot/index.ts node --provider-url http://localhost:8545 --nightscout
 
 #### Local OVM testnet proxy
 
+Custom RPC URL: https://sugardao.vercel.app/api/ovm-testnet
+
 ```
 ETH_RPC_URL=https://sugardao.vercel.app/api/ovm-testnet seth block latest
 ```
