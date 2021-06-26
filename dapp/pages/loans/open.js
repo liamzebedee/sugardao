@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext, createContext } from 'react'
 import { addOptimismNetworkToMetamask } from '../../lib'
 import { useWeb3React } from '@web3-react/core'
 
@@ -26,7 +26,12 @@ const NetworkIndicator = ({ chainId }) => {
     }
 }
 
+import { EthereumContext } from '../_app'
+
+
+
 function useEthereum() {
+    const context = useContext(EthereumContext)
     const [state, setState] = useState({
         chainId: null,
         account: null,

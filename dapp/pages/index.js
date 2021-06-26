@@ -33,7 +33,7 @@ export default function Home() {
             <p>Check the real-time $SUGAR feed.</p>
           </a>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
+          <a href="https://docs.google.com/document/d/11tIiI8U5u8_ZFkdbx9mxnlcnMZbJNQdUDmBmky8eTIo/edit?usp=sharing" className={styles.card}>
             <h2>Learn &rarr;</h2>
             <p>Read the whitepaper!</p>
           </a>

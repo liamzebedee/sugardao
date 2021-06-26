@@ -14,6 +14,8 @@
     "@web3-react/network-connector": "^6.1.9",
     "bent": "^7.3.12",
     "ethers": "^5.3.1",
+    "mobx": "^6.3.2",
+    "mobx-react": "^7.2.0",
     "next": "11.0.1",
     "node-fetch": "^2.6.1",
     "react": "17.0.2",
