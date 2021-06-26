@@ -190,6 +190,6 @@ library SafeDecimalMath {
     }
 
     function floorsub(uint a, uint b) internal pure returns (uint) {
-        return b > a ? 0 : a - b;
+        return b >= a ? 0 : a - b;
     }
 }

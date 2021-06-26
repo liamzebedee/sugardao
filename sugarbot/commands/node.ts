@@ -14,7 +14,15 @@ function fromMgToMmol(value) {
 
 // Main.
 
-async function run({ providerUrl, privateKey, nightscoutUrl }: any = {}) {
+const DEFAULTS = {
+	providerUrl: "http://localhost:8545"
+}
+
+async function run({ 
+	providerUrl = DEFAULTS.providerUrl, 
+	privateKey, 
+	nightscoutUrl 
+}: any = {}) {
     const provider = new ethers.providers.JsonRpcProvider(providerUrl)
 	let signer = privateKey 
 		? new ethers.Wallet(privateKey)

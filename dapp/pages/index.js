@@ -17,7 +17,7 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          Get started by minting $DIA.
+          Become a daobetic, get exposure to $SUGAR today.
           <a className={styles.button} href="/loans/open">Open a loan</a>
         </p>
 

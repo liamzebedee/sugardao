@@ -8,7 +8,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "sugarfeed-node": "ts-node sugarfeed-node/"
+    "sugarbot": "ts-node sugarbot/"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -21,6 +21,8 @@
     "pretty-error": "^3.0.3"
   },
   "dependencies": {
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "*",
     "chalk": "^4.1.1",
     "commander": "^7.2.0",
     "dotenv": "^9.0.2",
