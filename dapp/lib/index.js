@@ -27,7 +27,7 @@ const addOptimismNetworkToMetamask = async ({ ethereum }) => {
     // const optimismNetworkConfig = getOptimismNetwork({ layerOneNetworkId: Number(ethereum.chainId) });
     return await ethereum.request({
         method: 'wallet_addEthereumChain',
-        params: [optimismNetworkConfig[0]],
+        params: [optimismNetworkConfigs[0]],
     });
 }
 
