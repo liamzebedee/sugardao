@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 
 export default function Home() {
   const router = useRouter()
+  
   return (
     <div className={styles.container}>
       <Head>
@@ -21,7 +22,9 @@ export default function Home() {
 
         <p className={styles.description}>
           Become a daobetic, get exposure to $SUGAR today.
-          <Link className={styles.button} href="/loans/open">Open a loan</Link>
+          <Link passHref href="/loans/open">
+            <a className={styles.button}>Open a loan</a>
+          </Link>
         </p>
 
         <div className={styles.grid}>
