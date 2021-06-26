@@ -1,8 +1,11 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import styles from '../styles/Home.module.css'
+import { useRouter } from 'next/router'
 
 export default function Home() {
+  const router = useRouter()
   return (
     <div className={styles.container}>
       <Head>
@@ -18,11 +21,11 @@ export default function Home() {
 
         <p className={styles.description}>
           Become a daobetic, get exposure to $SUGAR today.
-          <a className={styles.button} href="/loans/open">Open a loan</a>
+          <Link className={styles.button} href="/loans/open">Open a loan</Link>
         </p>
 
         <div className={styles.grid}>
-          <a href="/sugar-feed" className={styles.card}>
+          <a href='#' onClick={() => router.push('/sugar-feed')} className={styles.card}>
             <h2>SugarFeed &rarr;</h2>
             <p>Check the real-time $SUGAR feed.</p>
           </a>
