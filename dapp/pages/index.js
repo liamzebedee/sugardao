@@ -58,9 +58,9 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
+          Powered by{' '}Ethereum
           <span className={styles.logo}>
-            <img src="https://ethereum.org/static/8ea7775026f258b32e5027fe2408c49f/ed396/ethereum-logo-landscape-black.png" alt="Vercel Logo" height={32} />
+            {/* <Image src="https://ethereum.org/static/8ea7775026f258b32e5027fe2408c49f/ed396/ethereum-logo-landscape-black.png" alt="Vercel Logo" layout='fill' height={32} /> */}
           </span>
         </a>
       </footer>
