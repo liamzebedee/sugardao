@@ -12,7 +12,7 @@ async function initialiseWeb3() {
     });
 
     const provider = await web3Modal.connect();
-
+    return provider
     // const web3 = new Web3(provider);
 }
 
