@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@uniswap/v2-core": "^1.0.1",
-    "@uniswap/v2-periphery": "*",
+    "@uniswap/v2-periphery": "1.1.0-beta.0",
     "chalk": "^4.1.1",
     "commander": "^7.2.0",
     "dotenv": "^9.0.2",
