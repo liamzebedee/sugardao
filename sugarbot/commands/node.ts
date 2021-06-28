@@ -4,7 +4,8 @@ import * as w3utils from 'web3-utils'
 import fetch from 'node-fetch'
 import { yellow, green } from 'chalk'
 
-const deployments = require('../../deployments/mainnet-polygon.json')
+const network = process.env.NETWORK
+const deployments = require(`../../deployments/${network}.json`)
 
 // Helpers.
 
@@ -18,14 +19,21 @@ const DEFAULTS = {
 	providerUrl: "http://localhost:8545"
 }
 
+const txDefaults = {
+	gasPrice: 0,
+	gasLimit: 8.9e6,
+}
+
 async function run({ 
 	providerUrl = DEFAULTS.providerUrl, 
-	privateKey, 
+	privateKey = process.env.PRIVATE_KEY, 
 	nightscoutUrl 
 }: any = {}) {
     const provider = new ethers.providers.JsonRpcProvider(providerUrl)
-	let signer = privateKey 
-		? new ethers.Wallet(privateKey)
+	provider.pollingInterval = 50
+	
+	const signer = privateKey 
+		? new ethers.Wallet(privateKey, provider)
 		: await provider.getSigner()
 	const account = await signer.getAddress()
 	
@@ -70,7 +78,9 @@ async function run({
 		const latest = data[0]
 		const { date, sgv } = latest
 		const tx = await sugarFeed.post(
-			utils.parseEther(`${fromMgToMmol(sgv)}`)
+			utils.parseEther(`${fromMgToMmol(sgv)}`),
+			+(new Date),
+			txDefaults
 		)
 		await tx.wait(1)
 	}
@@ -91,11 +101,7 @@ module.exports = {
 				'Ethereum network provider URL. If default, will use PROVIDER_URL found in the .env file.'
 			)
 			.option(
-				'-v, --private-key [value]',
-				'The private key to deploy with (only works in local mode, otherwise set in .env).'
-			)
-			.option(
-				'--nightscout-url [value]',
+				'--nightscout-url <value>',
 				'The nightscout URL'
 			)
 			.action(async (...args) => {

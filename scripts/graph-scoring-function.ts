@@ -2,7 +2,8 @@
 // import '@nomiclabs/hardhat-ethers'
 import * as ethers from 'ethers'
 import { utils } from 'ethers'
-const deployments = require('../deployments/mainnet-polygon.json')
+const network = process.env.NETWORK
+const deployments = require(`../../deployments/${network}.json`)
 
 
 async function main({ privateKey }) {

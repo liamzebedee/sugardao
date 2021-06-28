@@ -1,5 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require('hardhat-abi-exporter');
+require("@eth-optimism/hardhat-ovm")
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -31,13 +32,10 @@ module.exports = {
       // },
     ]
   },
+  ovm: {
+    solcVersion: '0.5.16' // Your version goes here.
+  },
   defaultNetwork: 'localhost',
-  networks: {
-    localhost: {
-      gas: 12e6,
-      blockGasLimit: 12e6,
-      url: 'http://localhost:8545',
-    },
-  }
+  networks: require('./networks')
 };
 

@@ -56,25 +56,27 @@ async function getContractsForImport() {
   return addressArgs
 }
 
+async function waitTx(tx) {
+  await (await tx).wait(1)
+}
+
 async function importAddresses(addressArgs) {
-  await addressResolver.importAddresses(...addressArgs)
+  await waitTx(addressResolver.importAddresses(...addressArgs))
   console.debug(`AddressResolver configured with new addresses`)
 }
 
 async function rebuildCaches(contracts) {
-  await Promise.all(
-    Object.entries(deployedContracts)
-    .map(([ name, contract ]) => async () => {
-      console.debug(`Rebuilding cache for ${green(name)}`)
-      await contract.rebuildCache()
-    })
-    .map(limitPromise)
-  )
+  for (let [name, contract] of Object.entries(deployedContracts)) {
+    console.debug(`Rebuilding cache for ${green(name)}`)
+    await waitTx(contract.rebuildCache())
+  }
 }
 
 
 
 async function main() {
+  hre.ethers.provider.pollingInterval = 1
+
   // Setup.
   const signers = await hre.ethers.getSigners()
   owner = await signers[0].getAddress()
@@ -108,7 +110,7 @@ async function main() {
   await rebuildCaches(deployedContracts)
 
   // Ok. We are done.
-  const deploymentFilePath = join(__dirname, '../../deployments/mainnet-polygon.json')
+  const deploymentFilePath = join(__dirname, `../../deployments/${hre.network.name}.json`)
   console.debug(`Saving deployment info to ${deploymentFilePath}`)
   let deployments = require(deploymentFilePath)
   // Update deployments.

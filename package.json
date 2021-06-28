@@ -21,6 +21,8 @@
     "pretty-error": "^3.0.3"
   },
   "dependencies": {
+    "@eth-optimism/hardhat-ovm": "^0.2.2",
+    "@eth-optimism/plugins": "*",
     "@uniswap/v2-core": "^1.0.1",
     "@uniswap/v2-periphery": "*",
     "chalk": "^4.1.1",
