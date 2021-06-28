@@ -1,12 +1,12 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
-import styles from '../styles/Home.module.css'
-import { useRouter } from 'next/router'
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
+import styles from "../styles/Home.module.css";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const router = useRouter()
-  
+  const router = useRouter();
+
   return (
     <div className={styles.container}>
       <Head>
@@ -28,12 +28,19 @@ export default function Home() {
         </p>
 
         <div className={styles.grid}>
-          <a href='#' onClick={() => router.push('/sugar-feed')} className={styles.card}>
+          <a
+            href="#"
+            onClick={() => router.push("/sugar-feed")}
+            className={styles.card}
+          >
             <h2>SugarFeed &rarr;</h2>
             <p>Check the real-time $SUGAR feed.</p>
           </a>
 
-          <a href="https://docs.google.com/document/d/11tIiI8U5u8_ZFkdbx9mxnlcnMZbJNQdUDmBmky8eTIo/edit?usp=sharing" className={styles.card}>
+          <a
+            href="https://docs.google.com/document/d/11tIiI8U5u8_ZFkdbx9mxnlcnMZbJNQdUDmBmky8eTIo/edit?usp=sharing"
+            className={styles.card}
+          >
             <h2>Learn &rarr;</h2>
             <p>Read the whitepaper!</p>
           </a>
@@ -64,12 +71,12 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}Ethereum
+          Powered by Ethereum
           <span className={styles.logo}>
             {/* <Image src="https://ethereum.org/static/8ea7775026f258b32e5027fe2408c49f/ed396/ethereum-logo-landscape-black.png" alt="Vercel Logo" layout='fill' height={32} /> */}
           </span>
         </a>
       </footer>
     </div>
-  )
+  );
 }

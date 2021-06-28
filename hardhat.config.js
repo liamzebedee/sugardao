@@ -20,23 +20,22 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.5.16"
+        version: "0.5.16",
       },
       {
-        version: "0.6.6"
+        version: "0.6.6",
       },
       // {
       //   version: "0.6.12"
       // },
-    ]
+    ],
   },
-  defaultNetwork: 'localhost',
+  defaultNetwork: "localhost",
   networks: {
     localhost: {
       gas: 12e6,
       blockGasLimit: 12e6,
-      url: 'http://localhost:8545',
+      url: "http://localhost:8545",
     },
-  }
+  },
 };
-
