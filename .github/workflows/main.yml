@@ -1,0 +1,42 @@
+name: Actions
+
+on:
+    push
+
+jobs:
+    build:
+        name: Run build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Install dependencies
+              run: yarn install --non-interactive
+
+            - name: Compile contracts
+              run: yarn hardhat compile
+
+    test:
+        name: Run tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Install dependencies
+              run: yarn install --non-interactive
+
+            - name: Run unit tests
+              run: yarn run test
+
+    lint:
+        name: Run lints
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Install dependencies
+              run: yarn install --non-interactive
+
+            - name: Run Prettier
+              run: yarn run lint
+
