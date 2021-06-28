@@ -10,6 +10,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "lint": "prettier --check .",
+    "lint:fix": "prettier --write .",
     "sugarbot": "ts-node sugarbot/"
   },
   "devDependencies": {
