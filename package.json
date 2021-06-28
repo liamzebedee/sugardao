@@ -8,6 +8,8 @@
   },
   "scripts": {
     "compile": "hardhat compile",
+    "test": "hardhat test",
+    "lint": "prettier --check .",
     "sugarbot": "ts-node sugarbot/"
   },
   "devDependencies": {
