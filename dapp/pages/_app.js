@@ -1,5 +1,5 @@
 import '../styles/globals.css'
-import { Web3ReactProvider } from '@web3-react/core'
+import { Web3ContextProvider } from '../components/ethereum'
 import * as ethers from 'ethers'
 import { createContext } from 'react'
 
@@ -9,11 +9,11 @@ function getLibrary(provider, connector) {
 
 function MyApp({ Component, pageProps }) {
   return <>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <EthereumContext.Provider>
+    {/* <Web3ReactProvider getLibrary={getLibrary}> */}
+      <Web3ContextProvider>
         <Component {...pageProps} />
-      </EthereumContext.Provider>
-    </Web3ReactProvider>
+      </Web3ContextProvider>
+    {/* </Web3ReactProvider> */}
   </>
 }
 

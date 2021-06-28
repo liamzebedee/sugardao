@@ -6,6 +6,7 @@ import { InjectedConnector } from '@web3-react/injected-connector'
 import { NetworkConnector } from '@web3-react/network-connector'
 import * as ethers from 'ethers'
 
+
 // const network = new NetworkConnector({ 
 //     urls: { 
 //         // 1: RPC_URLS[1]
@@ -26,86 +27,14 @@ const NetworkIndicator = ({ chainId }) => {
     }
 }
 
-import { EthereumContext } from '../_app'
+import { useWeb3 } from '../../components/ethereum'
 
 
 
-function useEthereum() {
-    const context = useContext(EthereumContext)
-    const [state, setState] = useState({
-        chainId: null,
-        account: null,
-        provider: null,
-        signer: null,
-        providerActive: false
-    })
 
-    async function activate() {
-        await window.ethereum.enable();
-        
-        const provider = new ethers.providers.Web3Provider(window.ethereum, "any")
-
-        const { chainId, name } = await provider.getNetwork()
-        const signer = provider.getSigner()
-        const account = await signer.getAddress()
-        
-        
-        // 
-        // Detect network changes.
-        // 
-        // 
-
-        async function loadNetwork() {
-            const { chainId, name } = await provider.getNetwork()
-            const signer = provider.getSigner()
-            const account = await signer.getAddress()
-            setState({
-                ...state,
-                chainId,
-            })
-        }
-
-        // async function checkNetwork() {
-        //     const { chainId, name } = await provider.getNetwork()
-        //     if (state.chainId != chainId) {
-        //         loadNetwork()
-        //     }
-        // }
-
-        // setInterval(checkNetwork, 200)
-
-        // window.ethereum.on('accountsChanged', function (accounts) {
-        //     console.log('accountsChanges', accounts);
-        // });
-
-        // window.ethereum.on('chainChanged', function (networkId) {
-        //     loadNetwork()
-        // });
-
-        // provider.on("network", (newNetwork, oldNetwork) => {
-        //     const { chainId, name } = newNetwork
-        //     setState({
-        //         ...state,
-        //         chainId,
-        //     })
-        // })
-
-        setState({
-            ...state,
-            chainId,
-            provider,
-            account,
-            signer,
-            providerActive: true
-        })
-    }
-
-    const { chainId, account } = state
-    return { ...state, activate }
-}
 
 export default function OpenLoan() {
-    const { activate, chainId, account, providerActive } = useEthereum()
+    const { activate, chainId, account, providerActive } = useWeb3()
 
     async function connectWallet() {
         try {
@@ -123,5 +52,8 @@ Network: <NetworkIndicator chainId={chainId} />
         </pre>
 
         { !providerActive && <button onClick={connectWallet}>Connect wallet</button> }
+
+        <h2>Open a loan</h2>
+        
     </>
 }

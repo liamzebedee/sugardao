@@ -6,8 +6,13 @@ daobetic
 become a daobetic, get exposure to $SUGAR today.
 
 * sugardao: the diabetic dao
+* $SUGAR: the 
 * DIA: diabetes-backed stablecoin
 
+## Introduction
+$SUGAR is a token which fluctuates in value according to my blood sugar levels. $SUGAR was distributed according to a [fair launch](https://insights.deribit.com/market-research/yfi-a-tale-of-fair-launch-governance-and-value/), where for 1 week anyone could become a sugar daddy/mummy.
+
+$DIA is a stablecoin that can only be backed by $SUGAR.
 
 ## Setup.
 
