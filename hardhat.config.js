@@ -47,6 +47,6 @@ module.exports = {
   },
   gasReporter: {
     currency: "AUD",
-    coinmarketcap: (process.env.COINMARKETCAP_API_KEY),
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
   },
 };
