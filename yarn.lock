@@ -4170,6 +4170,11 @@
     "ajv" "^6.12.3"
     "har-schema" "^2.0.0"
 
+"hardhat-abi-exporter@^2.2.1":
+  "integrity" "sha512-Um7+RPvJEj+OqWjPoPKlTTkO1Akr10pqpgMk8Pw2jz2wrGv5XQBGNW5aQgGVDUosYktUIWDaEhcwwFKbFsir9A=="
+  "resolved" "https://registry.npmjs.org/hardhat-abi-exporter/-/hardhat-abi-exporter-2.2.1.tgz"
+  "version" "2.2.1"
+
 "hardhat@^2.0.0", "hardhat@^2.2.1":
   "integrity" "sha512-8s7MtGXdh0NDwQKdlA8m8QdloVIN1+hv5aFpn0G5Ljj9vfNY9kUoc0a9pMboeGbd9WrS+XrZs5YlsPgQjaW/Tg=="
   "resolved" "https://registry.npmjs.org/hardhat/-/hardhat-2.2.1.tgz"

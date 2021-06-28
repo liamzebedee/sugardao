@@ -9,7 +9,7 @@ contract SugarFeed is Owned, MixinResolver, ISugarFeed {
     uint public bgl;
     uint public lastUpdatedTime;
 
-    event Update(uint _value);
+    event Update(uint value, uint timestamp);
 
     constructor(address _owner, address _resolver) 
         public 
@@ -17,9 +17,9 @@ contract SugarFeed is Owned, MixinResolver, ISugarFeed {
         MixinResolver(_resolver)
     {}
 
-    function post(uint256 _value) external onlyOwner {
+    function post(uint256 _value, uint _timestamp) external onlyOwner {
         bgl = _value;
-        lastUpdatedTime = block.timestamp;
-        emit Update(_value);
+        lastUpdatedTime = _timestamp;
+        emit Update(_value, _timestamp);
     }
 }
