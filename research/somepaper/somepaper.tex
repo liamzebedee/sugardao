@@ -36,57 +36,62 @@
     \date{2021-06-29}
     \maketitle
 
-    \section{Scoring Rule}
-        Let \(\alpha\) and \(\beta\) be the lower and upper bounds on healthy BGL, respectively. Let \(\gamma\) be the ideal BGL itself.
+    \section{\$SUGAR}
+        \subsection{Scoring Rule}
+            \subsubsection{Definition}
+                Let \(\alpha\) and \(\beta\) be the lower and upper bounds on healthy BGL, respectively. Let \(\gamma\) be the ideal BGL itself. We require that \(\gamma\in [\alpha,\beta]\).
+                
+                Additionally, we use \(d\) to denote the Euclidean distance function. Due to the univariate nature of our setting, we have the following familiar definition,
         
-        Additionally, we use \(d\) to denote the Euclidean distance function. Due to the univariate nature of our setting, we have the following familiar definition,
-
-        \[
-            \forall x, y\in\mathbb{R}, d\left(x, y\right)=|x-y|
-        \]
-
-        Consider the function, \(p\), defined as follows:
-
-        \[
-            p\left(b\right)=\left.
-                \begin{cases}
-                    \frac{d\left(b, \gamma\right)}{d\left(\alpha, \gamma\right)}, & \text{if } b<\gamma\\
-                    \frac{d\left(b, \gamma\right)}{d\left(\beta, \gamma\right)}, & \text{otherwise}\\
-                \end{cases}\right.
-        \]
-        \[
-            \Leftrightarrow p\left(b\right)=\left.
-                \begin{cases}
-                    \frac{|b-\gamma|}{|\alpha-\gamma|}, & \text{if } b<\gamma\\
-                    \frac{|b-\gamma|}{|\beta-\gamma|}, & \text{otherwise}\\
-                \end{cases}\right.
-        \]
-
-        Then the scoring rule is a real-valued function, \(s\), sending blood glucose levels to arbitrary scores.
-
-        \[
-            \begin{cases}
-                1-p\left(b\right), & \text{if } p\left(b\right)<1\\
-                0, & \text{otherwise}\\
-            \end{cases}
-        \]
-
-        As a concrete example of a particular scoring scheme, consider the following paramaterisation:
-
-        \[
-            \begin{cases}
-                \alpha=0\text{ mmol}\\
-                \beta=17\text{ mmol}\\
-                \gamma=7\text{ mmol}
-            \end{cases}
-        \]
-
-
-        Then, for a BGL of \(b=6\text{ mmol}\), we have:
-
-        \[
-            p\left(6\right)=\frac{|6-7|}{|0-7|}=\frac{|-1|}{|-7|}=\frac{1}{7}\implies s\left(6\right)=1-\frac{1}{7}=\frac{6}{7}
-        \]
+                \[
+                    \forall x, y\in\mathbb{R}, d\left(x, y\right)=|x-y|
+                \]
+        
+                We define a \textit{penalty}, \(p:\mathbb{R}\rightarrow [0, 1]\), defined as follows:
+        
+                \[
+                    p\left(b\right)=\left.
+                        \begin{cases}
+                            \frac{d\left(b, \gamma\right)}{d\left(\alpha, \gamma\right)}, & \text{if } b<\gamma\\
+                            \frac{d\left(b, \gamma\right)}{d\left(\beta, \gamma\right)}, & \text{otherwise}\\
+                        \end{cases}\right.
+                \]
+                \[
+                    \Leftrightarrow p\left(b\right)=\left.
+                        \begin{cases}
+                            \frac{|b-\gamma|}{|\alpha-\gamma|}, & \text{if } b<\gamma\\
+                            \frac{|b-\gamma|}{|\beta-\gamma|}, & \text{otherwise}\\
+                        \end{cases}\right.
+                \]
+    
+                Then the \textit{score} is a real-valued function, \(s:\mathbb{R}\rightarrow[0,1]\), sending blood glucose levels to arbitrary scores.
+        
+                \[
+                    s\left(b\right)=\begin{cases}
+                        1-p\left(b\right), & \text{if } p\left(b\right)<1\\
+                        0, & \text{otherwise}\\
+                    \end{cases}
+                \]
+                
+                Conceptually, the further away from the ideal BGL \(b\) is, the higher the penalty -- and thus score. If the BGL falls outside of the healthy range (i.e., \(b\notin[\alpha, \beta]\)), then the penalty is maximised at 1. This reduces the score to its \textit{minimum} of 0.
+        
+        
+            \subsubsection{Worked Example}
+                As a concrete example of a particular scoring scheme, consider the following paramaterisation:
+        
+                \[
+                    \begin{cases}
+                        \alpha=0\text{ mmol}\\
+                        \beta=17\text{ mmol}\\
+                        \gamma=7\text{ mmol}
+                    \end{cases}
+                \]
+        
+                Then, for a BGL of \(b=6\text{ mmol}\), we have:
+        
+                \[
+                    p\left(6\right)=\frac{|6-7|}{|0-7|}=\frac{|-1|}{|-7|}=\frac{1}{7}\implies s\left(6\right)=1-\frac{1}{7}=\frac{6}{7}
+                \]
 
     %\printbibliography
 \end{document}
