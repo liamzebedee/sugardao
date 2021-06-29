@@ -1,0 +1,82 @@
+\documentclass[oneside,a4paper]{article}
+
+\usepackage[
+    backend=biber,
+    style=ieee,
+    sortlocale=en_AU,
+    natbib=true,
+    url=false,
+    doi=true,
+    eprint=false
+]{biblatex}
+%\addbibresource{somepaper.bib}
+
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage[]{algpseudocode}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{pdfpages}
+\usepackage{listings}
+
+\theoremstyle{remark}
+\newtheorem{claim}{Claim}
+
+\begin{document}
+   \title{SugarDAO Technical Paper}
+    \author{Jack McPherson}
+    \date{2021-06-29}
+    \maketitle
+
+    \section{Scoring Rule}
+        Let \(\alpha\) and \(\beta\) be the lower and upper bounds on healthy BGL, respectively. Let \(\gamma\) be the ideal BGL itself.
+        
+        Additionally, we use \(d\) to denote the Euclidean distance function. Due to the univariate nature of our setting, we have the following familiar definition,
+
+        \[
+            \forall x, y\in\mathbb{R}, d\left(x, y\right)=|x-y|
+        \]
+
+        The scoring rule is a real-valued function, \(s\), sending blood glucose levels to arbitrary scores.
+        \[
+            s\left(b\right)=\left.
+                \begin{cases}
+                    \frac{d\left(b, \gamma\right)}{d\left(\alpha, \gamma\right)}, & \text{if } b<\gamma\\
+                    \frac{d\left(b, \gamma\right)}{d\left(\beta, \gamma\right)}, & \text{otherwise}\\
+                \end{cases}\right.
+        \]
+        \[
+            \Leftrightarrow s\left(b\right)=\left.
+                \begin{cases}
+                    \frac{|b-\gamma|}{|\alpha-\gamma|}, & \text{if } b<\gamma\\
+                    \frac{|b-\gamma|}{|\beta-\gamma|}, & \text{otherwise}\\
+                \end{cases}\right.
+        \]
+
+        As a concrete example of a particular scoring scheme, consider the following paramaterisation:
+
+        \[
+            \begin{cases}
+                \alpha=0\text{ mmol}\\
+                \beta=17\text{ mmol}\\
+                \gamma=7\text{ mmol}
+            \end{cases}
+        \]
+
+        Then, for a BGL of \(b=6\text{ mmol}\), we have a score of,
+
+        \[
+            s\left(6\right)=\frac{|6-7|}{|0-7|}=\frac{|-1|}{|-7|}=\frac{1}{7}
+        \]
+
+    %\printbibliography
+\end{document}
+
