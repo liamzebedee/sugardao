@@ -45,20 +45,30 @@
             \forall x, y\in\mathbb{R}, d\left(x, y\right)=|x-y|
         \]
 
-        The scoring rule is a real-valued function, \(s\), sending blood glucose levels to arbitrary scores.
+        Consider the function, \(p\), defined as follows:
+
         \[
-            s\left(b\right)=\left.
+            p\left(b\right)=\left.
                 \begin{cases}
                     \frac{d\left(b, \gamma\right)}{d\left(\alpha, \gamma\right)}, & \text{if } b<\gamma\\
                     \frac{d\left(b, \gamma\right)}{d\left(\beta, \gamma\right)}, & \text{otherwise}\\
                 \end{cases}\right.
         \]
         \[
-            \Leftrightarrow s\left(b\right)=\left.
+            \Leftrightarrow p\left(b\right)=\left.
                 \begin{cases}
                     \frac{|b-\gamma|}{|\alpha-\gamma|}, & \text{if } b<\gamma\\
                     \frac{|b-\gamma|}{|\beta-\gamma|}, & \text{otherwise}\\
                 \end{cases}\right.
+        \]
+
+        Then the scoring rule is a real-valued function, \(s\), sending blood glucose levels to arbitrary scores.
+
+        \[
+            \begin{cases}
+                1-p\left(b\right), & \text{if } p\left(b\right)<1\\
+                0, & \text{otherwise}\\
+            \end{cases}
         \]
 
         As a concrete example of a particular scoring scheme, consider the following paramaterisation:
@@ -71,10 +81,11 @@
             \end{cases}
         \]
 
-        Then, for a BGL of \(b=6\text{ mmol}\), we have a score of,
+
+        Then, for a BGL of \(b=6\text{ mmol}\), we have:
 
         \[
-            s\left(6\right)=\frac{|6-7|}{|0-7|}=\frac{|-1|}{|-7|}=\frac{1}{7}
+            p\left(6\right)=\frac{|6-7|}{|0-7|}=\frac{|-1|}{|-7|}=\frac{1}{7}\implies s\left(6\right)=1-\frac{1}{7}=\frac{6}{7}
         \]
 
     %\printbibliography
