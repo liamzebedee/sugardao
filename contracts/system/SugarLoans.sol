@@ -1,22 +1,19 @@
 import "../lib/SafeDecimalMath.sol";
 import "../mixins/MixinResolver.sol";
 import "../mixins/Owned.sol";
-import "../interfaces/ISugarFeed.sol";
+import "../interfaces/ISugarOracle.sol";
+import "../interfaces/IERC20.sol";
 
 contract SugarLoans is Owned, MixinResolver {
     using SafeDecimalMath for uint;
 
     /* ========== ADDRESS RESOLVER CONFIGURATION ========== */
-    bytes32 private constant CONTRACT_SUGAR_FEED = "SugarFeed";
+    bytes32 private constant CONTRACT_SUGAR_ORACLE = "SugarOracle";
+    bytes32 private constant CONTRACT_DIA_TOKEN = "DIAToken";
+    bytes32 private constant CONTRACT_INVERSE_DIA_TOKEN = "iDIAToken";
 
     // ========== CONSTANTS ==========
     uint public constant UNIT = 1e18;
-    uint public constant BG_HIGH_UPPER_BOUND = 18 * 1e18;
-    uint public constant BG_LOW_HIGHER_BOUND = 5 * 1e18;
-    uint public constant BG_LOW_LOWER_BOUND = 0 * 1e18;
-
-    // ========== STATE VARIABLES ==========
-    uint public TARGET_BG = 7 * 1e18; // mmol
 
     constructor(address _owner, address _resolver) 
         public 
@@ -29,44 +26,30 @@ contract SugarLoans is Owned, MixinResolver {
     // ========== VIEWS ==========
 
     function resolverAddressesRequired() public view returns (bytes32[] memory addresses) {
-        bytes32[] memory newAddresses = new bytes32[](1);
-        newAddresses[0] = CONTRACT_SUGAR_FEED;
+        bytes32[] memory newAddresses = new bytes32[](3);
+        newAddresses[0] = CONTRACT_SUGAR_ORACLE;
+        newAddresses[0] = CONTRACT_DIA_TOKEN;
+        newAddresses[0] = CONTRACT_INVERSE_DIA_TOKEN;
         return newAddresses;
     }
 
-    function sugarFeed() internal view returns (ISugarFeed) {
-        return ISugarFeed(requireAndGetAddress(CONTRACT_SUGAR_FEED));
+    function sugarOracle() internal view returns (ISugarOracle) {
+        return ISugarOracle(requireAndGetAddress(CONTRACT_SUGAR_ORACLE));
+    }
+
+    function diaToken() internal view returns (IERC20) {
+        return IERC20(requireAndGetAddress(CONTRACT_DIA_TOKEN));
+    }
+
+    function inverseDiaToken() internal view returns (IERC20) {
+        return IERC20(requireAndGetAddress(CONTRACT_INVERSE_DIA_TOKEN));
     }
 
     // ========== MUTATIVE FUNCTIONS ==========
 
-    function getPrice() public view returns (uint) {
-        return score(sugarFeed().bgl());
+    function open() external {
+        // lock SUGAR
+        // mint iDIA or DIA
     }
-
-    function openLoan(uint amount) public {
-        // collateralisation ratio.
-        revert();
-    }
-
-    // simple scoring function.
-    // TODO: x^(5/e)
-    function score(uint _bgl) public view returns (uint) {
-        uint f;
-
-        if(_bgl > TARGET_BG) {
-            f = (SafeDecimalMath.dist(_bgl, TARGET_BG).divideDecimalRound(BG_HIGH_UPPER_BOUND - TARGET_BG));
-        }
-        
-        if(_bgl <= TARGET_BG) {
-            f = (SafeDecimalMath.dist(_bgl, TARGET_BG).divideDecimalRound(BG_LOW_HIGHER_BOUND));
-        }
-
-        return (UNIT).floorsub(f);
-    }
-
-    // function logisticFn(uint x) public pure returns (int) {
-    //     return UNIT.sub(x.pow( (5*UNIT).dividedBy(EULER_CONSTANT) ));
-    // }
 }
 

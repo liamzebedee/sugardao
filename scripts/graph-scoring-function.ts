@@ -13,15 +13,15 @@ async function main({ privateKey }) {
         : await provider.getSigner()
     const account = await signer.getAddress()
 
-    const sugarLoans = new ethers.Contract(
-        deployments.contracts['SugarLoans'].address,
-        require('../artifacts/contracts/system/SugarLoans.sol/SugarLoans.json').abi,
+    const sugarOracle = new ethers.Contract(
+        deployments.contracts['SugarOracle'].address,
+        require('../artifacts/contracts/system/SugarOracle.sol/SugarOracle.json').abi,
         signer
     )
 
     console.log(`Blood Glucose Level,DIA price`)
     for (let bgl = 0; bgl < 24; bgl += 0.1) {
-        const score = await sugarLoans.score(utils.parseEther("" + bgl))
+        const score = await sugarOracle.score(utils.parseEther("" + bgl))
         console.log(`${bgl},${utils.formatEther(score)}`)
     }
 }

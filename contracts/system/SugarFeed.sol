@@ -18,8 +18,12 @@ contract SugarFeed is Owned, MixinResolver, ISugarFeed {
     {}
 
     function post(uint256 _value, uint _timestamp) external onlyOwner {
-        bgl = _value;
-        lastUpdatedTime = _timestamp;
+        if(_timestamp > lastUpdatedTime) {
+            bgl = _value;
+            lastUpdatedTime = _timestamp;
+        }
+
+        // Allow ingestion of old data, even if it was not an update.
         emit Update(_value, _timestamp);
     }
 }

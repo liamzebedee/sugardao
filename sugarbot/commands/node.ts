@@ -42,9 +42,9 @@ async function run({
 		require('../../artifacts/contracts/system/SugarFeed.sol/SugarFeed.json').abi,
 		signer
 	)
-	const sugarLoans = new ethers.Contract(
-		deployments.contracts['SugarLoans'].address,
-		require('../../artifacts/contracts/system/SugarLoans.sol/SugarLoans.json').abi,
+	const sugarOracle = new ethers.Contract(
+		deployments.contracts['SugarOracle'].address,
+		require('../../artifacts/contracts/system/SugarOracle.sol/SugarOracle.json').abi,
 		signer
 	)
 
@@ -61,7 +61,7 @@ async function run({
 	})
 
 	async function logPrice() {
-		const price = await sugarLoans.getPrice()
+		const price = await sugarOracle.getPrice()
 		console.log(`$SUGAR = $` + yellow(utils.formatEther(price)))
 	}
 

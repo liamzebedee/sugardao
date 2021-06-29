@@ -87,16 +87,16 @@ async function main() {
   const AddressResolver = await hre.ethers.getContractFactory("AddressResolver");
   addressResolver = await AddressResolver.deploy(owner);
 
-  // Deploy SugarFeed and SugarLoans.
+  // Deploy SugarFeed and SugarOracle.
   // -----------------------
 
-  const sugarFeed = await deployContract({
+  await deployContract({
     contract: "SugarFeed",
     params: [owner, addressResolver.address]
   })
 
-  const sugarLoans = await deployContract({
-    contract: "SugarLoans",
+  await deployContract({
+    contract: "SugarOracle",
     params: [owner, addressResolver.address]
   })
 

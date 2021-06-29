@@ -1,4 +1,5 @@
-require('dotenv')
+require('dotenv').config()
+
 module.exports = {
     localhost: {
       gas: 12e6,

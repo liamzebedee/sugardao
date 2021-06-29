@@ -18,6 +18,20 @@
   "resolved" "https://registry.npmjs.org/@ensdomains/resolver/-/resolver-0.2.4.tgz"
   "version" "0.2.4"
 
+"@eth-optimism/hardhat-ovm@^0.2.2":
+  "integrity" "sha512-QLzqawYCzC/m6K/Oaj/tCZQlu6kZTgnleg1cJad8kVYA5E+JWZQ6ZJrcStoJoJrco9RIroPUjAFEhFM8YiCc7Q=="
+  "resolved" "https://registry.npmjs.org/@eth-optimism/hardhat-ovm/-/hardhat-ovm-0.2.2.tgz"
+  "version" "0.2.2"
+  dependencies:
+    "node-fetch" "^2.6.1"
+
+"@eth-optimism/plugins@*":
+  "integrity" "sha512-PWogmjeV3ofH8yx7DV4ZcY6QiRFeWwrLFp0HLlgo5g7k3y/TL/oMjDTDrjuQ0DWQC7iaIQErML70KmBT/mdfLw=="
+  "resolved" "https://registry.npmjs.org/@eth-optimism/plugins/-/plugins-1.0.0-alpha.3.tgz"
+  "version" "1.0.0-alpha.3"
+  dependencies:
+    "node-fetch" "^2.6.1"
+
 "@ethereum-waffle/chai@^3.3.0":
   "integrity" "sha512-+vepCjttfOzCSnmiVEmd1bR8ctA2wYVrtWa8bDLhnTpj91BIIHotNDTwpeq7fyjrOCIBTN3Ai8ACfjNoatc4OA=="
   "resolved" "https://registry.npmjs.org/@ethereum-waffle/chai/-/chai-3.3.1.tgz"
@@ -4175,7 +4189,7 @@
   "resolved" "https://registry.npmjs.org/hardhat-abi-exporter/-/hardhat-abi-exporter-2.2.1.tgz"
   "version" "2.2.1"
 
-"hardhat@^2.0.0", "hardhat@^2.2.1":
+"hardhat@^2", "hardhat@^2.0.0", "hardhat@^2.2.1":
   "integrity" "sha512-8s7MtGXdh0NDwQKdlA8m8QdloVIN1+hv5aFpn0G5Ljj9vfNY9kUoc0a9pMboeGbd9WrS+XrZs5YlsPgQjaW/Tg=="
   "resolved" "https://registry.npmjs.org/hardhat/-/hardhat-2.2.1.tgz"
   "version" "2.2.1"
