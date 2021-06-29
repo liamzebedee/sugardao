@@ -1,6 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
-require("hardhat-contract-sizer");
-require("hardhat-gas-reporter");
+require('hardhat-abi-exporter');
+require("@eth-optimism/hardhat-ovm")
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -32,21 +32,9 @@ module.exports = {
       // },
     ],
   },
-  defaultNetwork: "localhost",
-  networks: {
-    localhost: {
-      gas: 12e6,
-      blockGasLimit: 12e6,
-      url: "http://localhost:8545",
-    },
+  ovm: {
+    solcVersion: '0.5.16' // Your version goes here.
   },
-  contractSizer: {
-    alphaSort: true,
-    runOnCompile: true,
-    disambiguatePaths: false,
-  },
-  gasReporter: {
-    currency: "AUD",
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-  },
+  defaultNetwork: 'localhost',
+  networks: require('./networks')
 };

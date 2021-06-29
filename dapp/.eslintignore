@@ -1,0 +1,4 @@
+build/*
+coverage/*
+browser.js
+node_modules
