@@ -75,7 +75,9 @@ async function rebuildCaches(contracts) {
 
 
 async function main() {
-  hre.ethers.provider.pollingInterval = 1
+  // hre.ethers.provider.pollingInterval = 1
+  console.log('DEPLOYING SUGAR INTO PRODUCTION')
+  console.log('')
 
   // Setup.
   const signers = await hre.ethers.getSigners()
