@@ -3,12 +3,12 @@
 ## Usage.
 
 ```
-# Populate the subgraph.yaml
-yarn codegen
+# Generate the generated/ bindings
+NETWORK=kovan npm run codegen
 
 # Compile the graph to WASM.
-yarn build
+NETWORK=kovan npm run build
 
 # Deploy the graph.
-yarn deploy-local
+NETWORK=kovan npm run deploy
 ```

@@ -1,11 +1,11 @@
 
-# type SugarFeed @entity {
-#   id: ID!
-#   updates: [SugarFeedUpdate!]! @derivedFrom(field: "feed")
-# }
+type SugarFeed @entity {
+  id: ID!
+  updates: [SugarFeedUpdate!]! @derivedFrom(field: "feed")
+}
 
 type SugarFeedUpdate @entity {
-  feed: String!
+  feed: SugarFeed!
   id: ID!
   timestamp: BigDecimal!
   value: BigDecimal!
