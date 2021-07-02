@@ -24,7 +24,8 @@ npx hardhat node
 npx hardhat run --network ovmTestnet scripts/migrations/1_deploy_loans.ts
 npx hardhat run scripts/migrations/1_deploy_loans.ts
 
-# Sugar feed bot.
+# Sugarbot.
+PRIVATE_KEY= NETWORK=kovan ts-node sugarbot/index.ts sugarfeed-keeper --provider-url $PROVIDER_URL_KOVAN --nightscout-url $NIGHTSCOUT_URL
 ts-node sugarbot/index.ts node --provider-url http://localhost:8545 --nightscout-url https://EXAMPLE
 ```
 
