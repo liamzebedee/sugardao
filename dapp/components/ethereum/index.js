@@ -1,7 +1,6 @@
 import React, { useReducer } from 'react'
 
 import { useState, useEffect, useContext, createContext } from 'react'
-import { addOptimismNetworkToMetamask } from '../../lib'
 import { useWeb3React } from '@web3-react/core'
 
 import { InjectedConnector } from '@web3-react/injected-connector'

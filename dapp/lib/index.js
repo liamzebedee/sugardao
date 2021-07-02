@@ -22,6 +22,12 @@ const optimismNetworkConfigs = {
 	},
 };
 
+const subgraphs = {
+	kovan: {
+		sugardao: 'https://api.thegraph.com/subgraphs/name/liamzebedee/sugardao-kovan'
+	}
+}
+
 const addOptimismNetworkToMetamask = async ({ ethereum }) => {
 	if (!ethereum || !ethereum.isMetaMask) throw new Error('Metamask is not installed');
 	return ethereum.request({
@@ -30,6 +36,17 @@ const addOptimismNetworkToMetamask = async ({ ethereum }) => {
 	});
 };
 
-module.exports = {
-	addOptimismNetworkToMetamask,
-};
+function load({ network }) {
+	return Object.entries({
+		subgraphs
+	})
+	.map(([key, config]) => {
+		if(!(network in config)) throw new Error(`No config '${key}' for network ${network}`)
+		return {
+			[key]: config[network]
+		}
+	})
+	.reduce((prev, curr) => Object.assign(prev, curr), {})
+}
+
+module.exports = load({ network: process.env.NETWORK })

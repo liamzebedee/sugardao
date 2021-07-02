@@ -1,25 +1,49 @@
-
-import * as d3 from "d3";
 import React, { useEffect, useRef, useState, useContext, useCallback } from 'react';
-import { intervalSearch } from "../../pages/helpers";
+
+
+// import * as d3 from 'd3';
+const d3 = require('../../vendor/d3')
+// const { default: d3 } = await import('')
+
+// import dynamic from 'next/dynamic'
+
+// const d3 = dynamic(() => import('d3'), { ssr: false })
+
+// const d3 = Object.assign({}, import('d3-array'))
+
 
 import { Duration, DateTime } from 'luxon'
 
 import { v4 as uuidv4 } from 'uuid';
 import styles from './styles.module.css'
-import { functions, MINUTE, compose, SECOND } from "../../model";
 
-import { PROFILE } from '../../misc/constants'
-import { NightscoutProfilesContext } from "../../misc/contexts";
+import * as _ from 'lodash'
 
-export const Chart = (props) => {
+const SCALE = 18.
+export const PROFILE = {
+    targetRange: {
+        bgHigh: 14.4 * SCALE,
+        bgTargetTop: 10 * SCALE,
+        bgTargetBottom: 5.0 * SCALE,
+        bgLow: 4.0 * SCALE
+    }
+}
+
+export function intervalSearch(intervals, x) {
+    let y = _.last(intervals)
+    for (let [bound, value] of intervals) {
+        if (x > bound) y = value
+    }
+    return y
+}
+
+export function Chart (props) {
     let onEndBrush = props.onEndBrush || identity
     const data = _.sortBy(props.data, 'date')
 
     const annotations = props.annotations || []
     const events = props.events || []
     const basalSeries = props.basalSeries || []
-    const profiles = useContext(NightscoutProfilesContext)
     const userProfile = PROFILE
 
     // Layout.
@@ -179,92 +203,13 @@ export const Chart = (props) => {
                         return <stop key={i} offset={x(d.date) / width} stopColor={intervalSearch(bgLineStops, d.sgv)} />
                     })}
                 </linearGradient>
-
-                {/* https://observablehq.com/@d3/line-with-missing-data */}
-                {/* Dotted line for missing/extrapolated data. */}
-                {/* <path 
-                d={bgLine(data.filter(bgLine.defined()))}
-                fill="none"
-                stroke="grey" 
-                stroke-dasharray="4 4"
-                strokeWidth={1}
-                /> */}
-
+                
                 {/* Coloured BG line for real data. */}
                 <path
-                    // d={bgLine( data.filter(bgLine.defined()) )}
-                    opacity={annotations.length ? 0.5 : 1}
                     d={bgLine(data)}
                     fill="none"
                     stroke={`url(#${bglColorId})`}
                     strokeWidth={2} />
-
-                {/* Annotations. */}
-                {annotations.map(annotation => {
-                    const { startTime, endTime } = annotation
-                    const annotationData = data.filter(d => {
-                        return (d.date >= startTime) && (d.date <= endTime)
-                    })
-                    const el = <path
-                        d={bgLine(annotationData)}
-                        fill="none"
-                        stroke={`url(#${bglColorId})`}
-                        strokeWidth={4} />;
-                    return el
-                })}
-
-                {/* Events. */}
-                {/* {transformedEvents.map((event, i) => {
-                    let fill
-                    let text
-                    let scaleFactor = 1
-
-                    switch(event.eventType) {
-                        case 'Meal Bolus':
-                            fill = 'red'
-                            let parts = []
-                            // if(event.insulin) parts.push(`${event.insulin}U`)
-                            if(event.carbs) parts.push(`${event.carbs}g`)
-                            text = parts.join(' ')
-                            scaleFactor = event.carbs / 15
-                            break
-                        case 'Correction Bolus':
-                            fill = 'blue'
-                            text = event.insulin
-                            scaleFactor = event.insulin / 1
-                            return
-                            break
-                        default:
-                            return null
-                    }
-                    
-                    const date = new Date(event.created_at)
-                    const u = yIdx(data, date)
-                    const u2 = data[u-1]
-                    
-                    const el = <g
-                        transform={`translate(${x(date)}, ${y(u2.sgv)})`}
-                        key={uuidv4()}>
-                            <circle 
-                                x={0}
-                                y={0}
-                                // r={5 * scaleFactor}
-                                r={10}
-                                fill={fill}
-                            />
-
-                            <text 
-                                // textAnchor="middle"
-                                y={-20}
-                                transform={`rotate(-45deg)`}
-                                stroke={fill}>
-                                {text}
-                            </text>
-                    </g>
-                    
-                    return el
-                })} */}
-
 
                 {/* 
                     Treatments. 
