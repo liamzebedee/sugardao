@@ -21,6 +21,7 @@ $DIA is a stablecoin that can only be backed by $SUGAR. DIA allows anyone to bet
 npx hardhat node
 
 # Deploy
+npx hardhat run --network ovmTestnet scripts/migrations/1_deploy_loans.ts
 npx hardhat run scripts/migrations/1_deploy_loans.ts
 
 # Sugar feed bot.

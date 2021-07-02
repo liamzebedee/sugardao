@@ -6,6 +6,10 @@ module.exports = {
       blockGasLimit: 12e6,
       url: 'http://localhost:8545',
     },
+    'kovan': {
+      url: process.env.PROVIDER_URL_KOVAN,
+      accounts: [process.env.PRIVATE_KEY_KOVAN]
+    },
     'ovmTestnet': {
       ovm: true,
       gas: 8e6,
