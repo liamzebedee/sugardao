@@ -28,6 +28,10 @@ const subgraphs = {
 	}
 }
 
+const deployments = {
+	kovan: require('../../deployments/kovan.json')
+}
+
 const addOptimismNetworkToMetamask = async ({ ethereum }) => {
 	if (!ethereum || !ethereum.isMetaMask) throw new Error('Metamask is not installed');
 	return ethereum.request({
@@ -38,7 +42,8 @@ const addOptimismNetworkToMetamask = async ({ ethereum }) => {
 
 function load({ network }) {
 	return Object.entries({
-		subgraphs
+		subgraphs,
+		deployments
 	})
 	.map(([key, config]) => {
 		if(!(network in config)) throw new Error(`No config '${key}' for network ${network}`)

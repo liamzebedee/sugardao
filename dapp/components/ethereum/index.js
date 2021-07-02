@@ -19,7 +19,8 @@ const Web3ContextProvider = ({ children }) => {
         account: null,
         provider: null,
         signer: null,
-        providerActive: false
+        providerActive: false,
+        active: false
     })
 
     async function activate() {
@@ -78,7 +79,8 @@ const Web3ContextProvider = ({ children }) => {
             provider,
             account,
             signer,
-            providerActive: true
+            providerActive: true,
+            active: true
         })
     }
 

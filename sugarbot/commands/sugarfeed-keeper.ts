@@ -38,21 +38,20 @@ function getTxDefaults() {
 const txDefaults = getTxDefaults()
 
 
-
-async function run({ 
-	providerUrl = DEFAULTS.providerUrl, 
-	privateKey = process.env.PRIVATE_KEY, 
-	nightscoutUrl 
+async function run({
+	providerUrl = DEFAULTS.providerUrl,
+	privateKey = process.env.PRIVATE_KEY,
+	nightscoutUrl
 }: any = {}) {
-	console.log('Connecting to provider: '+providerUrl)
+	console.log('Connecting to provider: ' + providerUrl)
 	const provider = new ethers.providers.JsonRpcProvider(providerUrl)
 	provider.pollingInterval = 50
-	
-	const signer = privateKey 
+
+	const signer = privateKey
 		? new ethers.Wallet(privateKey, provider)
 		: await provider.getSigner()
 	const account = await signer.getAddress()
-	
+
 	const sugarFeed = new ethers.Contract(
 		deployments.contracts['SugarFeed'].address,
 		require('../../artifacts/contracts/system/SugarFeed.sol/SugarFeed.json').abi,
@@ -64,16 +63,11 @@ async function run({
 		signer
 	)
 
-  const sugarFeed = new ethers.Contract(
-    deployments.contracts["SugarFeed"].address,
-    require("../../artifacts/contracts/system/SugarFeed.sol/SugarFeed.json").abi,
-    signer
-  );
-  const sugarLoans = new ethers.Contract(
-    deployments.contracts["SugarLoans"].address,
-    require("../../artifacts/contracts/system/SugarLoans.sol/SugarLoans.json").abi,
-    signer
-  );
+	// Sanity check.
+	const owner = await sugarFeed.owner()
+	if (owner != account) {
+		throw new Error(`SugarFeed has different owner to configured account.\n owner:${owner}\n configured account:${account}`)
+	}
 
 	console.log(`Using account ` + green(account))
 
@@ -88,10 +82,13 @@ async function run({
 		console.log(`$SUGAR = $` + yellow(utils.formatEther(price)))
 	}
 
-  async function logPrice() {
-    const price = await sugarLoans.getPrice();
-    console.log(`$SUGAR = $` + yellow(utils.formatEther(price)));
-  }
+	// Run main event loop.
+	async function pollAndPost() {
+		// Poll.
+		console.debug(`Polling Nightscout for BG's`)
+		const BG_URL = new URL(`/api/v1/entries/sgv.json`, nightscoutUrl)
+		const res = await fetch(BG_URL)
+		const data = await res.json()
 
 		// Post.
 		console.debug(`Updating SugarFeed`)
@@ -104,23 +101,16 @@ async function run({
 				txDefaults
 			)
 			await tx.wait(1)
-		} catch(ex) {
+		} catch (ex) {
 			throw ex
 		}
 	}
 
-    // Post.
-    console.debug(`Updating SugarFeed`);
-    const latest = data[0];
-    const { date, sgv } = latest;
-    const tx = await sugarFeed.post(utils.parseEther(`${fromMgToMmol(sgv)}`));
-    await tx.wait(1);
-  }
-
-  const POLL_INTERVAL = 1000 * 60 * 2;
-  await pollAndPost();
-  const timeout = setInterval(() => pollAndPost(), POLL_INTERVAL);
+	const POLL_INTERVAL = 1000 * 60 * 2
+	await pollAndPost()
+	const timeout = setInterval(() => pollAndPost(), POLL_INTERVAL)
 }
+
 
 module.exports = {
 	cmd: (program) =>

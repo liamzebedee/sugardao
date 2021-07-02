@@ -4,8 +4,50 @@ import Link from "next/link";
 import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
 
+import { atom, useRecoilState } from 'recoil'
+import { useEffect } from "react";
+import { useWeb3 } from '../components/ethereum'
+import { Spinner } from "@chakra-ui/react"
+import { ethers } from 'ethers'
+import { BigNumber } from 'ethers'
+import { formatFixed } from '@ethersproject/bignumber'
+import w3utils from 'web3-utils'
+
+const pricesState = atom({
+  key: 'prices',
+  default: null,
+});
+
+const config = require('../lib')
+
+function priceToString(num) {
+  return ethers.utils.formatEther(num)
+}
+
 export default function Home() {
   const router = useRouter();
+  const { activate, active, provider } = useWeb3()
+  const [prices, setPrices] = useRecoilState(pricesState)
+
+  useEffect(async () => {
+    if(active) {
+      const SugarOracle = new ethers.Contract(
+        config.deployments.contracts.SugarOracle.address,
+        require('../../abi/contracts/system/SugarOracle.sol/SugarOracle.json'),
+        provider
+      )
+
+      const prices = await SugarOracle.getPrices()
+      setPrices(prices)
+
+      provider.on('block', async blockNum => {
+        const prices = await SugarOracle.getPrices()
+        setPrices(prices)
+      })
+    } else {
+      activate()
+    }
+  }, [active, setPrices])
 
   return (
     <div className={styles.container}>
@@ -26,6 +68,11 @@ export default function Home() {
             <a className={styles.button}>Open a loan</a>
           </Link>
         </p>
+
+        <span>
+          SUGAR = {!prices ? <Spinner size="xs" /> : <>${priceToString(prices[0])}</>}
+          {/* {price ? priceToString(price) : ''} */}
+        </span>
 
         <div className={styles.grid}>
           <a
