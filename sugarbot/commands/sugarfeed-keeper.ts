@@ -19,17 +19,33 @@ const DEFAULTS = {
   providerUrl: "http://localhost:8545",
 };
 
-const txDefaults = {
-	gasPrice: 0,
-	gasLimit: 8.9e6,
+
+// Network-specific defaults.
+
+const useOvm = false
+
+function getTxDefaults() {
+	if(useOvm) {
+		return {
+			gasPrice: 0,
+			gasLimit: 8.9e6,
+		}
+	}
+	
+	return {}
 }
+
+const txDefaults = getTxDefaults()
+
+
 
 async function run({ 
 	providerUrl = DEFAULTS.providerUrl, 
 	privateKey = process.env.PRIVATE_KEY, 
 	nightscoutUrl 
 }: any = {}) {
-    const provider = new ethers.providers.JsonRpcProvider(providerUrl)
+	console.log('Connecting to provider: '+providerUrl)
+	const provider = new ethers.providers.JsonRpcProvider(providerUrl)
 	provider.pollingInterval = 50
 	
 	const signer = privateKey 
@@ -59,13 +75,13 @@ async function run({
     signer
   );
 
-  // Sanity check.
-  const owner = await sugarFeed.owner();
-  if (owner != account) {
-    throw new Error(
-      `SugarFeed has different owner to configured account.\n owner:${owner}\n configured account:${account}`
-    );
-  }
+	console.log(`Using account ` + green(account))
+
+	// Setup events.
+	sugarFeed.on('Update', (value) => {
+		logPrice()
+		console.log(`${green('Update')}(value=${utils.formatEther(value)})`)
+	})
 
 	async function logPrice() {
 		const price = await sugarOracle.getPrice()
@@ -81,12 +97,16 @@ async function run({
 		console.debug(`Updating SugarFeed`)
 		const latest = data[0]
 		const { date, sgv } = latest
-		const tx = await sugarFeed.post(
-			utils.parseEther(`${fromMgToMmol(sgv)}`),
-			+(new Date),
-			txDefaults
-		)
-		await tx.wait(1)
+		try {
+			const tx = await sugarFeed.post(
+				utils.parseEther(`${fromMgToMmol(sgv)}`),
+				+(new Date),
+				txDefaults
+			)
+			await tx.wait(1)
+		} catch(ex) {
+			throw ex
+		}
 	}
 
     // Post.
@@ -105,8 +125,8 @@ async function run({
 module.exports = {
 	cmd: (program) =>
 		program
-			.command('node')
-			.description('Run sugar feed node')
+			.command('sugarfeed-keeper')
+			.description('Run sugarfeed keeper node')
 			.option(
 				'-p, --provider-url <value>',
 				'Ethereum network provider URL. If default, will use PROVIDER_URL found in the .env file.'

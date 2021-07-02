@@ -78,8 +78,8 @@ const generateManifest = ({ context, contracts }) => {
 
     return {
         specVersion: "0.0.2",
-        "description": "Curatem for Ethereum",
-        "repository": "https://github.com/graphprotocol/example-subgraph",
+        "description": "SugarDAO",
+        "repository": "https://github.com/liamzebedee/sugardao",
         "schema": {
             "file": "./schema.graphql"
         },
@@ -196,23 +196,15 @@ function formatContractAbi(contract) {
 const yaml = require('js-yaml');
 const fs = require('fs');
 
-function generate({ network, contracts }) {
+function generate({ subgraphNetwork, network, contracts }) {
     const { contracts: contractBlobs } = load({
         network,
-        contracts: [
-            {
-                name: "SugarFeed",
-                eventHandlers: [
-                    { event: "Update" }
-                ],
-                entities: ["SugarFeed", "SugarFeedUpdate"]
-            }
-        ]
+        contracts
     })
 
     const context = {
         abis: contractBlobs.map(formatContractAbi),
-        network: 'mainnet'
+        network: subgraphNetwork
     }
 
     // const contracts = [
@@ -235,44 +227,42 @@ function generate({ network, contracts }) {
     // console.log(
     //     JSON.stringify(manifest, null, 1))
 
-    fs.writeFileSync(
-        'subgraph.yaml',
-        yaml.dump(manifest)
-    )
+    // fs.writeFileSync(
+    //     'subgraph.yaml',
+    //     yaml.dump(manifest)
+    // )
+    return manifest
 }
 
 
+// 
+// Configuration.
+// 
+const network = process.env.NETWORK
+const manifest = generate({
+    subgraphNetwork: network,
+    network,
+    contracts: [
+        {
+            name: "SugarFeed",
+            eventHandlers: [
+                { event: "Update" }
+            ],
+            entities: ["SugarFeed", "SugarFeedUpdate"]
+        }
+    ]
+})
 
-
-async function main() {
-    // 
-    // Configuration.
-    // 
-    const network = process.env.NETWORK
-
-    generate({
-        network,
-        contracts: [
-            {
-                name: "SugarFeed",
-                eventHandlers: [
-                    { event: "Update" }
-                ],
-                entities: ["SugarFeed", "SugarFeedUpdate"]
-            }
-        ]
-    })
-}
-
+module.exports = manifest
 
 
 
-module.exports = main()
-    .then(() => process.exit(0))
-    .catch(error => {
-        console.error(error);
-        process.exit(1);
-    });
+// module.exports = main()
+//     .then(() => process.exit(0))
+//     .catch(error => {
+//         console.error(error);
+//         process.exit(1);
+//     });
 
     
         
