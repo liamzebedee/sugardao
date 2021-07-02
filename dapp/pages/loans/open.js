@@ -1,16 +1,16 @@
 import { useState, useEffect, useContext, createContext } from 'react'
 import { useWeb3React } from '@web3-react/core'
 
-import { InjectedConnector } from '@web3-react/injected-connector'
-import { NetworkConnector } from '@web3-react/network-connector'
-import * as ethers from 'ethers'
+import { InjectedConnector } from "@web3-react/injected-connector";
+import { NetworkConnector } from "@web3-react/network-connector";
+import * as ethers from "ethers";
 
 
 // const network = new NetworkConnector({ 
 //     urls: { 
 //         // 1: RPC_URLS[1]
 //         420: 'https://sugardao.vercel.app/api/ovm-testnet'
-//     } 
+//     }
 // })
 
 // const injected = new InjectedConnector({
@@ -54,4 +54,5 @@ Network: <NetworkIndicator chainId={chainId} />
         <h2>Open a loan</h2>
         
     </>
+  );
 }

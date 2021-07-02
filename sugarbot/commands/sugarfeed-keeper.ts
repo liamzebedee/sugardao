@@ -1,8 +1,8 @@
-import * as ethers from 'ethers'
-import { utils, BigNumber } from 'ethers'
-import * as w3utils from 'web3-utils'
-import fetch from 'node-fetch'
-import { yellow, green } from 'chalk'
+import * as ethers from "ethers";
+import { utils, BigNumber } from "ethers";
+import * as w3utils from "web3-utils";
+import fetch from "node-fetch";
+import { yellow, green } from "chalk";
 
 const network = process.env.NETWORK
 const deployments = require(`../../deployments/${network}.json`)
@@ -10,14 +10,14 @@ const deployments = require(`../../deployments/${network}.json`)
 // Helpers.
 
 function fromMgToMmol(value) {
-	return value / 18.
+  return value / 18;
 }
 
 // Main.
 
 const DEFAULTS = {
-	providerUrl: "http://localhost:8545"
-}
+  providerUrl: "http://localhost:8545",
+};
 
 
 // Network-specific defaults.
@@ -64,11 +64,16 @@ async function run({
 		signer
 	)
 
-	// Sanity check.
-	const owner = await sugarFeed.owner()
-	if(owner != account) {
-		throw new Error(`SugarFeed has different owner to configured account.\n owner:${owner}\n configured account:${account}`)
-	}
+  const sugarFeed = new ethers.Contract(
+    deployments.contracts["SugarFeed"].address,
+    require("../../artifacts/contracts/system/SugarFeed.sol/SugarFeed.json").abi,
+    signer
+  );
+  const sugarLoans = new ethers.Contract(
+    deployments.contracts["SugarLoans"].address,
+    require("../../artifacts/contracts/system/SugarLoans.sol/SugarLoans.json").abi,
+    signer
+  );
 
 	console.log(`Using account ` + green(account))
 
@@ -83,13 +88,10 @@ async function run({
 		console.log(`$SUGAR = $` + yellow(utils.formatEther(price)))
 	}
 
-	// Run main event loop.
-	async function pollAndPost() {
-		// Poll.
-		console.debug(`Polling Nightscout for BG's`)
-		const BG_URL = new URL(`/api/v1/entries/sgv.json`, nightscoutUrl)
-		const res = await fetch(BG_URL)
-		const data = await res.json()
+  async function logPrice() {
+    const price = await sugarLoans.getPrice();
+    console.log(`$SUGAR = $` + yellow(utils.formatEther(price)));
+  }
 
 		// Post.
 		console.debug(`Updating SugarFeed`)
@@ -107,11 +109,18 @@ async function run({
 		}
 	}
 
-	const POLL_INTERVAL = 1000 * 60 * 2
-	await pollAndPost()
-	const timeout = setInterval(() => pollAndPost(), POLL_INTERVAL)
-}
+    // Post.
+    console.debug(`Updating SugarFeed`);
+    const latest = data[0];
+    const { date, sgv } = latest;
+    const tx = await sugarFeed.post(utils.parseEther(`${fromMgToMmol(sgv)}`));
+    await tx.wait(1);
+  }
 
+  const POLL_INTERVAL = 1000 * 60 * 2;
+  await pollAndPost();
+  const timeout = setInterval(() => pollAndPost(), POLL_INTERVAL);
+}
 
 module.exports = {
 	cmd: (program) =>

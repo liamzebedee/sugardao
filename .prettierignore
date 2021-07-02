@@ -1,0 +1,5 @@
+artifacts/*
+contracts/*
+*.md
+cache/*
+.github/*

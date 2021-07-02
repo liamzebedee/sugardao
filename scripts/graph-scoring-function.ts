@@ -1,4 +1,3 @@
-
 // import '@nomiclabs/hardhat-ethers'
 import * as ethers from 'ethers'
 import { utils } from 'ethers'
@@ -7,11 +6,11 @@ const deployments = require(`../../deployments/${network}.json`)
 
 
 async function main({ privateKey }) {
-    const provider = new ethers.providers.JsonRpcProvider()
-    let signer = privateKey
-        ? new ethers.Wallet(privateKey)
-        : await provider.getSigner()
-    const account = await signer.getAddress()
+  const provider = new ethers.providers.JsonRpcProvider();
+  let signer = privateKey
+    ? new ethers.Wallet(privateKey)
+    : await provider.getSigner();
+  const account = await signer.getAddress();
 
     const sugarOracle = new ethers.Contract(
         deployments.contracts['SugarOracle'].address,
@@ -26,10 +25,9 @@ async function main({ privateKey }) {
     }
 }
 
-
 main({ privateKey: null })
-    .then(() => process.exit(0))
-    .catch(error => {
-        console.error(error);
-        process.exit(1);
-    });
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

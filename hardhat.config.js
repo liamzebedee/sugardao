@@ -22,15 +22,15 @@ module.exports = {
   solidity: {
     compilers: [
       {
-        version: "0.5.16"
+        version: "0.5.16",
       },
       {
-        version: "0.6.6"
+        version: "0.6.6",
       },
       // {
       //   version: "0.6.12"
       // },
-    ]
+    ],
   },
   ovm: {
     solcVersion: '0.5.16' // Your version goes here.
@@ -38,4 +38,3 @@ module.exports = {
   defaultNetwork: 'localhost',
   networks: require('./networks')
 };
-

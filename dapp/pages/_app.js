@@ -7,7 +7,7 @@ import {
 } from 'recoil'
 
 function getLibrary(provider, connector) {
-  return new ethers.providers.Web3Provider(provider) // this will vary according to whether you use e.g. ethers or web3.js
+  return new ethers.providers.Web3Provider(provider); // this will vary according to whether you use e.g. ethers or web3.js
 }
 
 function MyApp({ Component, pageProps }) {
@@ -20,4 +20,4 @@ function MyApp({ Component, pageProps }) {
   </>
 }
 
-export default MyApp
+export default MyApp;
