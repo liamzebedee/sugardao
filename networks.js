@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 module.exports = {
-    localhost: {
+    local: {
       gas: 12e6,
       blockGasLimit: 12e6,
       url: 'http://localhost:8545',
