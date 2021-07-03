@@ -3,12 +3,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_resolver",
+        "name": "_associatedContract",
         "type": "address"
       }
     ],
@@ -21,18 +16,12 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "destination",
+        "name": "associatedContract",
         "type": "address"
       }
     ],
-    "name": "CacheUpdated",
+    "name": "AssociatedContractUpdated",
     "type": "event"
   },
   {
@@ -68,21 +57,6 @@
     "type": "event"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "UNIT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "constant": false,
     "inputs": [],
     "name": "acceptOwnership",
@@ -92,23 +66,14 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [],
-    "name": "initialize",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
-    "name": "isResolverCached",
+    "name": "associatedContract",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "address",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "payable": false,
@@ -146,26 +111,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "direction",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "open",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "owner",
@@ -182,41 +127,17 @@
   },
   {
     "constant": false,
-    "inputs": [],
-    "name": "rebuildCache",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "resolver",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract AddressResolver",
-        "name": "",
+        "internalType": "address",
+        "name": "_associatedContract",
         "type": "address"
       }
     ],
+    "name": "setAssociatedContract",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "resolverAddressesRequired",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "addresses",
-        "type": "bytes32[]"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

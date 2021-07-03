@@ -1,3 +1,5 @@
+pragma solidity ^0.5.16;
+
 // Libraries.
 import "../lib/SafeDecimalMath.sol";
 import "../mixins/Owned.sol";

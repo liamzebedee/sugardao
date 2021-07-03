@@ -5,35 +5,11 @@
         "internalType": "address",
         "name": "_owner",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_resolver",
-        "type": "address"
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "destination",
-        "type": "address"
-      }
-    ],
-    "name": "CacheUpdated",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -68,18 +44,61 @@
     "type": "event"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "UNIT",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "contract Proxyable",
+        "name": "newTarget",
+        "type": "address"
       }
     ],
+    "name": "TargetUpdated",
+    "type": "event"
+  },
+  {
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "fallback"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "callData",
+        "type": "bytes"
+      },
+      {
+        "internalType": "uint256",
+        "name": "numTopics",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "topic1",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "topic2",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "topic3",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "topic4",
+        "type": "bytes32"
+      }
+    ],
+    "name": "_emit",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -89,30 +108,6 @@
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [],
-    "name": "initialize",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "isResolverCached",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -146,26 +141,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "direction",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "open",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "owner",
@@ -182,8 +157,14 @@
   },
   {
     "constant": false,
-    "inputs": [],
-    "name": "rebuildCache",
+    "inputs": [
+      {
+        "internalType": "contract Proxyable",
+        "name": "_target",
+        "type": "address"
+      }
+    ],
+    "name": "setTarget",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -192,27 +173,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "resolver",
+    "name": "target",
     "outputs": [
       {
-        "internalType": "contract AddressResolver",
+        "internalType": "contract Proxyable",
         "name": "",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "resolverAddressesRequired",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "addresses",
-        "type": "bytes32[]"
       }
     ],
     "payable": false,

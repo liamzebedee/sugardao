@@ -1,19 +1,138 @@
-import "openzeppelin-solidity-2.3.0/contracts/token/ERC20/ERC20Detailed.sol";
-import "openzeppelin-solidity-2.3.0/contracts/token/ERC20/ERC20Mintable.sol";
+pragma solidity ^0.5.16;
 
-
-// import "../interfaces/IERC20.sol";
+import "./ERC20Behaviour.sol";
 import "../mixins/Owned.sol";
 import "../mixins/MixinResolver.sol";
+import "../interfaces/IERC20.sol";
+import "../interfaces/ISugarLoans.sol";
+import "../interfaces/IAny.sol";
+import "./ERC20State.sol";
 
+contract SUGAR is Owned, IERC20, ERC20Behaviour, MixinResolver {
+    uint8 public constant DECIMALS = 18;
 
-contract SugarToken is Owned, IERC20, MixinResolver, ERC20Detailed, ERC20Mintable {
-    constructor(address _owner, address _resolver) 
-        public 
-        Owned(_owner) 
-        MixinResolver(_resolver) 
-        ERC20Detailed("Sugar", "SUGAR", 18)
+    /* ========== ADDRESS RESOLVER CONFIGURATION ========== */
+    bytes32 private constant CONTRACT_SUGAR_LOANS = "SugarLoans";
+    
+    constructor(
+        address payable _proxy,
+        ERC20State _tokenState,
+        address _owner,
+        address _resolver
+    ) public
+        ERC20Behaviour(
+            _proxy,
+            _tokenState,
+            "Sugar 🍭",
+            "SUGAR",
+            0,
+            DECIMALS,
+            _owner
+        )
+        MixinResolver(_resolver)
     {
-        _mint(msg.sender, 10**18 * 1000000);
+    }
+
+    bool public sweet = false;
+    function genesis() external onlyOwner {
+        require(!sweet, "ERR_ALREADY_SWEET");
+        _internalIssue(msg.sender, 10**18 * 422000000); // genesis
+        sweet = true;
+    }
+
+    /* ========== VIEWS ========== */
+
+    // Note: use public visibility so that it can be invoked in a subclass
+    function resolverAddressesRequired() public view returns (bytes32[] memory addresses) {
+        addresses = new bytes32[](1);
+        addresses[0] = CONTRACT_SUGAR_LOANS;
+        return addresses;
+    }
+
+    function sugarLoans() internal view returns (ISugarLoans) {
+        return ISugarLoans(requireAndGetAddress(CONTRACT_SUGAR_LOANS));
+    }
+
+    /* ========== MUTATIVE FUNCTIONS ========== */
+
+    function transferFrom(
+        address from,
+        address to,
+        uint value
+    ) public optionalProxy returns (bool) {
+        return _internalTransferFrom(from, to, value);
+    }
+
+    function transfer(address to, uint value) public optionalProxy returns (bool) {
+        return super._internalTransfer(messageSender, to, value);
+    }
+
+    function issue(address account, uint amount) external onlyInternalContracts {
+        _internalIssue(account, amount);
+    }
+
+    function burn(address account, uint amount) external onlyInternalContracts {
+        _internalBurn(account, amount);
+    }
+
+    /* ========== INTERNAL FUNCTIONS ========== */
+
+    function _internalTransferFrom(
+        address from,
+        address to,
+        uint value
+    ) internal returns (bool) {
+        // Skip allowance update in case of infinite allowance
+        if (tokenState.allowance(from, messageSender) != uint(-1)) {
+            // Reduce the allowance by the amount we're transferring.
+            // The safeSub call will handle an insufficient allowance.
+            tokenState.setAllowance(from, messageSender, tokenState.allowance(from, messageSender).sub(value));
+        }
+
+        return super._internalTransfer(from, to, value);
+    }
+
+    function _internalIssue(address account, uint amount) internal {
+        tokenState.setBalanceOf(account, tokenState.balanceOf(account).add(amount));
+        totalSupply = totalSupply.add(amount);
+        emitTransfer(address(0), account, amount);
+        emitIssued(account, amount);
+    }
+
+    function _internalBurn(address account, uint amount) internal returns (bool) {
+        tokenState.setBalanceOf(account, tokenState.balanceOf(account).sub(amount));
+        totalSupply = totalSupply.sub(amount);
+        emitTransfer(account, address(0), amount);
+        emitBurned(account, amount);
+
+        return true;
+    }
+
+    /* ========== EVENTS ========== */
+    event Issued(address indexed account, uint value);
+    bytes32 private constant ISSUED_SIG = keccak256("Issued(address,uint256)");
+
+    function emitIssued(address account, uint value) internal {
+        proxy._emit(abi.encode(value), 2, ISSUED_SIG, addressToBytes32(account), 0, 0);
+    }
+
+    event Burned(address indexed account, uint value);
+    bytes32 private constant BURNED_SIG = keccak256("Burned(address,uint256)");
+
+    function emitBurned(address account, uint value) internal {
+        proxy._emit(abi.encode(value), 2, BURNED_SIG, addressToBytes32(account), 0, 0);
+    }
+    
+    
+    /* ========== MODIFIERS ========== */
+
+    function _isInternalContract(address account) internal view returns (bool) {
+        return
+            account == address(sugarLoans());
+    }
+
+    modifier onlyInternalContracts() {
+        require(_isInternalContract(msg.sender), "Only internal contracts allowed");
+        _;
     }
 }

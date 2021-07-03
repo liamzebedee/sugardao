@@ -2,38 +2,14 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_resolver",
+        "internalType": "address payable",
+        "name": "_proxy",
         "type": "address"
       }
     ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "name",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "destination",
-        "type": "address"
-      }
-    ],
-    "name": "CacheUpdated",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -68,19 +44,17 @@
     "type": "event"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "UNIT",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "indexed": false,
+        "internalType": "address",
+        "name": "proxyAddress",
+        "type": "address"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
+    "name": "ProxyUpdated",
+    "type": "event"
   },
   {
     "constant": false,
@@ -92,23 +66,29 @@
     "type": "function"
   },
   {
-    "constant": false,
+    "constant": true,
     "inputs": [],
-    "name": "initialize",
-    "outputs": [],
+    "name": "integrationProxy",
+    "outputs": [
+      {
+        "internalType": "contract Proxy",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "isResolverCached",
+    "name": "messageSender",
     "outputs": [
       {
-        "internalType": "bool",
+        "internalType": "address",
         "name": "",
-        "type": "bool"
+        "type": "address"
       }
     ],
     "payable": false,
@@ -146,26 +126,6 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "direction",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "open",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
     "name": "owner",
@@ -181,21 +141,12 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [],
-    "name": "rebuildCache",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "constant": true,
     "inputs": [],
-    "name": "resolver",
+    "name": "proxy",
     "outputs": [
       {
-        "internalType": "contract AddressResolver",
+        "internalType": "contract Proxy",
         "name": "",
         "type": "address"
       }
@@ -205,18 +156,48 @@
     "type": "function"
   },
   {
-    "constant": true,
-    "inputs": [],
-    "name": "resolverAddressesRequired",
-    "outputs": [
+    "constant": false,
+    "inputs": [
       {
-        "internalType": "bytes32[]",
-        "name": "addresses",
-        "type": "bytes32[]"
+        "internalType": "address payable",
+        "name": "_integrationProxy",
+        "type": "address"
       }
     ],
+    "name": "setIntegrationProxy",
+    "outputs": [],
     "payable": false,
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "setMessageSender",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_proxy",
+        "type": "address"
+      }
+    ],
+    "name": "setProxy",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

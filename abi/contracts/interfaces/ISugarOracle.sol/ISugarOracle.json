@@ -1,5 +1,6 @@
 [
   {
+    "constant": true,
     "inputs": [],
     "name": "getPrice",
     "outputs": [
@@ -9,10 +10,12 @@
         "type": "uint256"
       }
     ],
+    "payable": false,
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "constant": true,
     "inputs": [],
     "name": "getPrices",
     "outputs": [
@@ -27,10 +30,12 @@
         "type": "uint256"
       }
     ],
+    "payable": false,
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",
@@ -46,6 +51,7 @@
         "type": "uint256"
       }
     ],
+    "payable": false,
     "stateMutability": "view",
     "type": "function"
   }

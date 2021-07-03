@@ -7,25 +7,34 @@ const { gray, green, yellow, redBright, red } = require("chalk");
 
 const w3utils = require("web3-utils");
 const toBytes32 = (key) => w3utils.rightPad(w3utils.asciiToHex(key), 64);
+const ZERO_ADDRESS = '0x' + '0'.repeat(40)
 
 const limitPromise = pLimit(4);
 
 // Context.
 let owner: string;
+let deployments
 let deployedContracts: { [k: string]: any } = {};
 let addressResolver;
 
 // Functions.
-async function deployContract({ contract, params }) {
-  console.debug(`Deploying ${green(contract)}`);
+async function deployContract({ contract, params, force = false, name = undefined }) {
+  let target = name || contract
+
+  if (deployments.contracts[target]) {
+    console.debug(gray(`Skipping ${target}, as it is already deployed`));
+    return hre.ethers.getContractAt(contract, deployments.contracts[target].address)
+  }
+
+  console.debug(`Deploying ${green(target)}`);
 
   const Template = await hre.ethers.getContractFactory(contract);
   const instance = await Template.deploy(...params);
   const address = (await instance.deployed()).address;
 
-  console.debug(`Deployed ${green(contract)} to ${address}`);
+  console.debug(`Deployed ${green(target)} to ${address}`);
 
-  deployedContracts[contract] = instance;
+  deployedContracts[target] = instance;
 
   return instance;
 }
@@ -65,11 +74,17 @@ async function importAddresses(addressArgs) {
   console.debug(`AddressResolver configured with new addresses`)
 }
 
+const mixedWithResolver = contract => !!contract['rebuildCache']
 async function rebuildCaches(contracts) {
-  for (let [name, contract] of Object.entries(deployedContracts)) {
+  for (let [name, contract] of Object.entries(deployedContracts).filter(x => mixedWithResolver(x[1]))) {
     console.debug(`Rebuilding cache for ${green(name)}`)
     await waitTx(contract.rebuildCache())
   }
+}
+
+function addressOf(contract) {
+  if (!contract.address) new Error("no address")
+  return contract.address
 }
 
 async function main() {
@@ -80,6 +95,9 @@ async function main() {
   // Setup.
   const signers = await hre.ethers.getSigners();
   owner = await signers[0].getAddress();
+
+  const deploymentFilePath = join(__dirname, `../../deployments/${hre.network.name}.json`)
+  deployments = require(deploymentFilePath)
 
   // Deploy AddressResolver.
   // -----------------------
@@ -102,19 +120,96 @@ async function main() {
     params: [owner, addressResolver.address]
   })
 
+  // Deploy tokens
+  // -------------
+
+  async function deployToken({ name, contract }) {
+    // State.
+    const tokenState = await deployContract({
+      name: `TokenState${name}`,
+      contract: 'ERC20State',
+      params: [owner, ZERO_ADDRESS]
+    });
+    
+    // Proxy/Identity.
+    const proxy = await deployContract({
+      name: `Proxy${name}`,
+      contract: 'ProxyERC20',
+      params: [owner]
+    });
+
+    // Behaviour.
+    const token = await deployContract({
+      name,
+      contract,
+      params: [
+        addressOf(proxy),
+        addressOf(tokenState),
+        owner,
+        addressOf(addressResolver),
+      ]
+    });
+
+    await waitTx(
+      tokenState.setAssociatedContract(
+        addressOf(token)
+      )
+    )
+
+    await waitTx(
+      proxy.setTarget(
+        addressOf(token)
+      )
+    )
+
+    return token
+  }
+  
+  await deployToken({
+    name: "DIA",
+    contract: "DIA"
+  })
+  
+  await deployToken({
+    name: "iDIA",
+    contract: "iDIA"
+  })
+
+  const sugar = await deployToken({
+    name: "SUGAR",
+    contract: "SUGAR"
+  })
+
+
+  // Deploy loans.
+  // -------------
+
+  const sugarLoans = await deployContract({
+    contract: "SugarLoans",
+    params: [owner, addressResolver.address]
+  })
+
   // Import addresses.
   // -----------------
 
   console.debug("Updating the address resolver...");
 
   const addressArgs = await getContractsForImport();
-  await importAddresses(addressArgs);
-  await rebuildCaches(deployedContracts);
+  if (addressArgs.length) {
+    await importAddresses(addressArgs);
+    await rebuildCaches(deployedContracts);
+  }
+
+
+  // Genesis.
+  // --------
+
+  await waitTx(
+    sugar.genesis()
+  )
 
   // Ok. We are done.
-  const deploymentFilePath = join(__dirname, `../../deployments/${hre.network.name}.json`)
   console.debug(`Saving deployment info to ${deploymentFilePath}`)
-  let deployments = require(deploymentFilePath)
   // Update deployments.
   Object.entries(deployedContracts).forEach(([name, contract]) => {
     deployments["contracts"][name] = {
