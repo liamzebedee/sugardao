@@ -1,5 +1,9 @@
 {
     "contracts": {
+        "AddressResolver": {
+            "address": "0x750936aB96de3fe87199DF54D64Ac016FDb10410",
+            "deployTransaction": null
+        },
         "SugarFeed": {
             "address": "0xC64A9b9553906214AFBa2320408858ca42f4d724",
             "deployTransaction": {

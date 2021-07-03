@@ -45,6 +45,9 @@ async function getContractsForImport() {
   await Promise.all(
     Object.entries(deployedContracts)
       .map(([name, contract]) => async () => {
+        // Skip AddressResolver.
+        if(name == 'AddressResolver') return
+
         const isImported = await addressResolver.areAddressesImported(
           [toBytes32(name)],
           [contract.address]
@@ -102,10 +105,10 @@ async function main() {
   // Deploy AddressResolver.
   // -----------------------
 
-  const AddressResolver = await hre.ethers.getContractFactory(
-    "AddressResolver"
-  );
-  addressResolver = await AddressResolver.deploy(owner);
+  addressResolver = await deployContract({
+    contract: "AddressResolver",
+    params: [owner]
+  })
 
   // Deploy SugarFeed and SugarOracle.
   // -----------------------
@@ -204,9 +207,11 @@ async function main() {
   // Genesis.
   // --------
 
-  await waitTx(
-    sugar.genesis()
-  )
+  if(!(await sugar.sweet())) {
+    await waitTx(
+      sugar.genesis()
+    )
+  }
 
   // Ok. We are done.
   console.debug(`Saving deployment info to ${deploymentFilePath}`)
