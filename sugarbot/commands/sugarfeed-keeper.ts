@@ -71,8 +71,17 @@ async function run({
 
 	console.log(`Using account ` + green(account))
 
+
+	// Get state.
+	async function getLastUpdated() {
+		return new Date((await sugarFeed.lastUpdatedTime()).toNumber())
+	}
+	let lastUpdatedTime = await getLastUpdated()
+	console.log(`Last updated: ${lastUpdatedTime}`)
+
 	// Setup events.
-	sugarFeed.on('Update', (value) => {
+	sugarFeed.on('Update', async (value) => {
+		lastUpdatedTime = await getLastUpdated()
 		logPrice()
 		console.log(`${green('Update')}(value=${utils.formatEther(value)})`)
 	})
@@ -91,9 +100,13 @@ async function run({
 		const data = await res.json()
 
 		// Post.
-		console.debug(`Updating SugarFeed`)
 		const latest = data[0]
 		const { date, sgv } = latest
+		if(date <= lastUpdatedTime) {
+			return	
+		}
+		console.debug(`Updating SugarFeed`)
+
 		try {
 			const tx = await sugarFeed.post(
 				utils.parseEther(`${fromMgToMmol(sgv)}`),
