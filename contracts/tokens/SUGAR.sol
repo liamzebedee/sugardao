@@ -23,7 +23,7 @@ contract SUGAR is Owned, IERC20, ERC20Behaviour, MixinResolver {
         ERC20Behaviour(
             _proxy,
             _tokenState,
-            "Sugar 🍭",
+            "Sugar",
             "SUGAR",
             0,
             DECIMALS,
