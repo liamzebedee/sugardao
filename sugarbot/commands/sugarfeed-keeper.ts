@@ -1,11 +1,10 @@
 import * as ethers from "ethers";
-import { utils, BigNumber } from "ethers";
-import * as w3utils from "web3-utils";
+import { utils } from "ethers";
 import fetch from "node-fetch";
 import { yellow, green } from "chalk";
 
 const network = process.env.NETWORK
-const deployments = require(`../../deployments/${network}.json`)
+const sugardao = require('../../')
 
 // Helpers.
 
@@ -52,16 +51,10 @@ async function run({
 		: await provider.getSigner()
 	const account = await signer.getAddress()
 
-	const sugarFeed = new ethers.Contract(
-		deployments.contracts['SugarFeed'].address,
-		require('../../artifacts/contracts/system/SugarFeed.sol/SugarFeed.json').abi,
-		signer
-	)
-	const sugarOracle = new ethers.Contract(
-		deployments.contracts['SugarOracle'].address,
-		require('../../artifacts/contracts/system/SugarOracle.sol/SugarOracle.json').abi,
-		signer
-	)
+	const { 
+		SugarFeed: sugarFeed, 
+		SugarOracle: sugarOracle 
+	} = sugardao.getContracts({ network, signerOrProvider: signer });
 
 	// Sanity check.
 	const owner = await sugarFeed.owner()

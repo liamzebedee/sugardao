@@ -29,12 +29,17 @@ async function deployContract({ contract, params, force = false, name = undefine
   console.debug(`Deploying ${green(target)}`);
 
   const Template = await hre.ethers.getContractFactory(contract);
+
   const instance = await Template.deploy(...params);
   const address = (await instance.deployed()).address;
 
   console.debug(`Deployed ${green(target)} to ${address}`);
 
-  deployedContracts[target] = instance;
+  deployedContracts[target] = {
+    instance,
+    bytecode: Template.bytecode,
+    abi: JSON.parse(Template.interface.format("json") as string) 
+  }
 
   return instance;
 }
@@ -45,12 +50,13 @@ async function getContractsForImport() {
   await Promise.all(
     Object.entries(deployedContracts)
       .map(([name, contract]) => async () => {
+        const { instance } = contract
         // Skip AddressResolver.
         if(name == 'AddressResolver') return
 
         const isImported = await addressResolver.areAddressesImported(
           [toBytes32(name)],
-          [contract.address]
+          [instance.address]
         );
 
         if (!isImported) {
@@ -59,7 +65,7 @@ async function getContractsForImport() {
           );
 
           addressArgs[0].push(toBytes32(name));
-          addressArgs[1].push(contract.address);
+          addressArgs[1].push(instance.address);
         }
       })
       .map(limitPromise)
@@ -78,10 +84,10 @@ async function importAddresses(addressArgs) {
 }
 
 const mixedWithResolver = contract => !!contract['rebuildCache']
-async function rebuildCaches(contracts) {
-  for (let [name, contract] of Object.entries(deployedContracts).filter(x => mixedWithResolver(x[1]))) {
+async function rebuildCaches() {
+  for (const [name, contract] of Object.entries(deployedContracts).filter(x => mixedWithResolver(x[1].instance))) {
     console.debug(`Rebuilding cache for ${green(name)}`)
-    await waitTx(contract.rebuildCache())
+    await waitTx(contract.instance.rebuildCache())
   }
 }
 
@@ -100,7 +106,13 @@ async function main() {
   owner = await signers[0].getAddress();
 
   const deploymentFilePath = join(__dirname, `../../deployments/${hre.network.name}.json`)
-  deployments = require(deploymentFilePath)
+  if(process.env.FRESH_DEPLOY) {
+    deployments = {
+      contracts: {}
+    }
+  } else {
+    deployments = require(deploymentFilePath)
+  }
 
   // Deploy AddressResolver.
   // -----------------------
@@ -200,7 +212,7 @@ async function main() {
   const addressArgs = await getContractsForImport();
   if (addressArgs.length) {
     await importAddresses(addressArgs);
-    await rebuildCaches(deployedContracts);
+    await rebuildCaches();
   }
 
 
@@ -217,9 +229,12 @@ async function main() {
   console.debug(`Saving deployment info to ${deploymentFilePath}`)
   // Update deployments.
   Object.entries(deployedContracts).forEach(([name, contract]) => {
+    const { instance, abi, bytecode } = contract
     deployments["contracts"][name] = {
-      address: contract.address,
-      deployTransaction: contract.deployTransaction,
+      address: instance.address,
+      deployTransaction: instance.deployTransaction,
+      abi,
+      bytecode
     };
   });
   // Save contract addresses.

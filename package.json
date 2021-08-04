@@ -1,8 +1,8 @@
 {
-  "name": "daobetic",
+  "name": "sugardao",
   "version": "1.0.0",
   "description": "daobetic",
-  "main": "hardhat.config.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
@@ -18,7 +18,6 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
-    "ethers": "^5.1.4",
     "hardhat": "^2.2.1",
     "hardhat-contract-sizer": "^2.0.3",
     "hardhat-gas-reporter": "^1.0.4",
@@ -37,7 +36,8 @@
     "node-fetch": "^2.6.1",
     "openzeppelin-solidity-2.3.0": "npm:openzeppelin-solidity@2.3.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "ethers": "^5.4.3"
   },
   "keywords": [],
   "author": "",
