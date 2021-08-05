@@ -3,13 +3,13 @@ import { Chart } from '../components/Chart'
 
 import { request, gql } from 'graphql-request'
 import { useEffect } from 'react'
-import * as config from '../lib'
+import * as config from '../lib/config'
 import { utils } from 'ethers'
 import { atom, useRecoilState } from 'recoil'
 
 const query = gql`
 {
-  sugarFeedUpdates(first: 60, orderBy: timestamp, orderDirection: desc) {
+  sugarFeedUpdates(first: 120, orderBy: timestamp, orderDirection: desc) {
     id
     timestamp
     value

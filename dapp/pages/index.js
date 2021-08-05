@@ -12,17 +12,17 @@ import { ethers } from 'ethers'
 import { BigNumber } from 'ethers'
 import { formatFixed } from '@ethersproject/bignumber'
 import w3utils from 'web3-utils'
+import * as config from '../lib/config'
+import { priceToString } from '../lib/utils'
+
+const sugardao = require('../../')
 
 const pricesState = atom({
   key: 'prices',
   default: null,
 });
 
-const config = require('../lib')
 
-function priceToString(num) {
-  return ethers.utils.formatEther(num)
-}
 
 export default function Home() {
   const router = useRouter();
@@ -31,21 +31,20 @@ export default function Home() {
 
   useEffect(async () => {
     if(active) {
-      const SugarOracle = new ethers.Contract(
-        config.deployments.contracts.SugarOracle.address,
-        require('../../abi/contracts/system/SugarOracle.sol/SugarOracle.json'),
-        provider
-      )
+      const {
+        SugarOracle
+      } = sugardao.getContracts({ network: config.network, signerOrProvider: provider });
 
       const prices = await SugarOracle.getPrices()
       setPrices(prices)
 
       provider.on('block', async blockNum => {
         const prices = await SugarOracle.getPrices()
+        console.log(prices.map(priceToString))
         setPrices(prices)
       })
     } else {
-      activate()
+      activate({ supportedChainIds: [31337] })
     }
   }, [active, setPrices])
 

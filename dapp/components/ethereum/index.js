@@ -23,7 +23,7 @@ const Web3ContextProvider = ({ children }) => {
         active: false
     })
 
-    async function activate() {
+    async function activate({ supportedChainIds }) {
         await window.ethereum.enable();
 
         const provider = new ethers.providers.Web3Provider(window.ethereum, "any")
@@ -80,7 +80,7 @@ const Web3ContextProvider = ({ children }) => {
             account,
             signer,
             providerActive: true,
-            active: true
+            active: true && supportedChainIds.includes(chainId)
         })
     }
 

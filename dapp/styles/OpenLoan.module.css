@@ -1,0 +1,9 @@
+.container1 {
+    margin: 2em;
+}
+
+.container2 {
+    padding: 0;
+    margin: auto 1rem;
+    line-height: 1;
+}
