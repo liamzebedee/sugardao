@@ -41,7 +41,7 @@ const positionSizeState = selector({
     get: ({ get }) => {
         const balances = get(balancesState)
         const prices = get(pricesState)
-        if (!balances.DIA || !prices) return fromWei('0')
+        if (!balances.DIA || !prices) return ethers.constants.Zero
 
         return balances.DIA.mul(prices[0]).div(parseEther('1.0'))
             .add(balances.iDIA.mul(prices[1])).div(parseEther('1.0'))
@@ -210,13 +210,13 @@ iDIA  ${sprintf("%20s", data && formatEther(data.balances.iDIA)) }
             <p><strong>Position</strong></p>
             <pre>Current Size: {sprintf("%20s", formatEther(positionSize))} SUGAR</pre>
             <div>
-                <input type='number' value={formData.amount} onChange={({ target: { value } }) => setFormField('amount', value)}/>  
+                <input type='number' placeholder="0.0 SUGAR" value={formData.amount} onChange={({ target: { value } }) => setFormField('amount', value)}/>  
             </div>
             <input type="radio" id="dia" checked={formData.direction} onChange={({ target: { value } }) => setFormField('direction', 1)} /> <label for="dia">DIA</label>
             <input type="radio" id="idia" checked={!formData.direction} onChange={({ target: { value } }) => setFormField('direction', 0)} /> <label for="idia">iDIA</label>
             <div>
                 <button onClick={modifyPosition} disabled={!formValid || formLoading}>
-                    Open
+                    { positionSize.gt(0) ? 'Modify' : 'Open' }
                 </button>
             {modifyPositionStatus}
             </div>
