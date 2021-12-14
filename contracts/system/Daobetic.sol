@@ -6,17 +6,18 @@ import "../interfaces/IDaobetic.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../libraries/SafeDecimalMath.sol";
 import "../libraries/Base64.sol";
 import "../libraries/Utils.sol";
-// import "../mixins/MixinResolver.sol";
+import "../mixins/MixinResolver.sol";
 import "../mixins/Owned.sol";
+import "./GlucoseFeed.sol";
 
 
-contract Daobetic is ERC721, Ownable, IDaobetic {
+contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
     using SafeDecimalMath for uint;
     using Utils for uint;
+    using StringUtils for string;
 
     // ========== CONSTANTS ==========
     uint public constant UNIT = 1e18;
@@ -38,7 +39,10 @@ contract Daobetic is ERC721, Ownable, IDaobetic {
         _;
     }
 
-    constructor() 
+
+    constructor(address _owner, address _resolver) 
+        Owned(_owner) 
+        MixinResolver(_resolver)
         ERC721("Daobetic", "DAOBETIC") 
     {
         _mint(msg.sender, 420);
@@ -82,6 +86,28 @@ contract Daobetic is ERC721, Ownable, IDaobetic {
         return string(abi.encodePacked(glucoseValue, " mmol/L"));
     }
 
+    function getGlucoseLine() internal view returns (string memory d) {
+        IGlucoseFeed.Observation[36] memory points = glucoseFeed.getHistory();
+        uint64 time = 0;
+        uint64 timeMax = 60*60*3;
+        uint64 axisMax = 350;
+
+        d = d
+            .concat("M ")
+            .concat(Utils.toString(time))
+            .concat(",")
+            .concat(Utils.toString(points[0].val));
+        
+        for(uint i = 1; i < points.length; i++) {
+            time += points[i].deltaTime * axisMax / timeMax;
+            d = d
+                .concat(" L ")
+                .concat(Utils.toString(time))
+                .concat(" ")
+                .concat(Utils.toString(points[i].val));
+        }
+    }
+
     function tokenURI(uint256 tokenId) override public view returns (string memory) {
         string[17] memory parts;
         parts[0] = '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350"><style>.base { fill: white; font-family: serif; font-size: 14px; }</style><rect width="100%" height="100%" fill="black" /><text x="10" y="20" class="base">';
@@ -92,7 +118,7 @@ contract Daobetic is ERC721, Ownable, IDaobetic {
 
         parts[3] = getGlucose();
 
-        // parts[4] = '</text><text x="10" y="60" class="base">';
+        parts[4] = string(abi.encodePacked('</text><path fill="none" stroke="steelblue" stroke-width="1.5" d="', getGlucoseLine() ,'"></path>'));
 
         // parts[5] = getHead(tokenId);
 

@@ -53,10 +53,6 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         bool initialized;
         Observation[MAX_OBSERVATIONS] observations;
     }
-    struct Observation {
-        uint8 val;
-        uint16 deltaTime;
-    }
 
     event Update(uint8 value, uint64 timestamp);
 

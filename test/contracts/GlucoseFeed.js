@@ -27,7 +27,7 @@ function mockObservations(n) {
   return data
 }
 
-describe.only("GlucoseFeed", async () => {
+describe("GlucoseFeed", async () => {
   let glucoseFeed;
   let accounts;
   let owner;
