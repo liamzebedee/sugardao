@@ -1,8 +1,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("SugarFeed", async () => {
-  let SugarFeed;
+describe.only("GlucoseFeed", async () => {
+  let glucoseFeed;
   let accounts;
   let owner;
   let nonOwner;
@@ -15,8 +15,8 @@ describe("SugarFeed", async () => {
     const resolverFactory = await ethers.getContractFactory("AddressResolver");
     resolver = await resolverFactory.deploy(await owner.getAddress());
 
-    const sugarFeedFactory = await ethers.getContractFactory("SugarFeed");
-    SugarFeed = await sugarFeedFactory.deploy(
+    const glucoseFeedFactory = await ethers.getContractFactory("GlucoseFeed");
+    glucoseFeed = await glucoseFeedFactory.deploy(
       await owner.getAddress(),
       resolver.address
     );
@@ -28,24 +28,25 @@ describe("SugarFeed", async () => {
         const value = ethers.constants.One;
         const timestamp = ethers.BigNumber.from("1625222946");
 
-        expect(SugarFeed.connect(nonOwner).post(value, timestamp)).to.be.revertedWith("");
+        expect(glucoseFeed.connect(nonOwner).post(value, timestamp)).to.be.revertedWith("");
       });
     });
 
     context("When called by an owner and with old timestamp", async () => {
         it("Does not update BGL", async () => {
-            const firstValue = ethers.BigNumber.from("7");
-            const secondValue = ethers.BigNumber.from("5");
+            const firstValue = ethers.BigNumber.from("70");
+            const secondValue = ethers.BigNumber.from("50");
             
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.sub(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
-            await SugarFeed.post(secondValue, secondTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(secondValue, secondTimestamp);
 
             const expectedBGL = firstValue;
 
-            expect(await SugarFeed.bgl()).to.equal(expectedBGL);
+            let { value } = await glucoseFeed.latest()
+            expect(value).to.equal(expectedBGL);
         });
 
         it("Does not update last updated time", async () => {
@@ -55,12 +56,13 @@ describe("SugarFeed", async () => {
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.sub(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
-            await SugarFeed.post(secondValue, secondTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(secondValue, secondTimestamp);
 
             const expectedLastUpdatedTime = firstTimestamp;
-
-            expect(await SugarFeed.lastUpdatedTime()).to.equal(expectedLastUpdatedTime);
+            
+            let { lastUpdatedTime } = await glucoseFeed.latest()
+            expect(lastUpdatedTime).to.equal(expectedLastUpdatedTime);
         });
 
         it("Emits an Update event", async () => {
@@ -70,11 +72,11 @@ describe("SugarFeed", async () => {
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.sub(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
 
-            await expect(SugarFeed.post(secondValue, secondTimestamp))
+            await expect(glucoseFeed.post(secondValue, secondTimestamp))
                     .to
-                    .emit(SugarFeed, "Update")
+                    .emit(glucoseFeed, "Update")
                     .withArgs(secondValue, secondTimestamp);
         });
     });
@@ -87,12 +89,13 @@ describe("SugarFeed", async () => {
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.add(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
-            await SugarFeed.post(secondValue, secondTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(secondValue, secondTimestamp);
 
             const expectedBGL = secondValue;
 
-            expect(await SugarFeed.bgl()).to.equal(expectedBGL);
+            let { value } = await glucoseFeed.latest()
+            expect(value).to.equal(expectedBGL);
         });
 
         it("Updates last updated time", async () => {
@@ -102,12 +105,13 @@ describe("SugarFeed", async () => {
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.add(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
-            await SugarFeed.post(secondValue, secondTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(secondValue, secondTimestamp);
 
             const expectedLastUpdatedTime = secondTimestamp;
 
-            expect(await SugarFeed.lastUpdatedTime()).to.equal(expectedLastUpdatedTime);
+            let { lastUpdatedTime } = await glucoseFeed.latest()
+            expect(lastUpdatedTime).to.equal(expectedLastUpdatedTime);
         });
 
         it("Emits an Update event", async () => {
@@ -117,11 +121,11 @@ describe("SugarFeed", async () => {
             const firstTimestamp = ethers.BigNumber.from("1625222946");
             const secondTimestamp = firstTimestamp.add(ethers.constants.One);
 
-            await SugarFeed.post(firstValue, firstTimestamp);
+            await glucoseFeed.post(firstValue, firstTimestamp);
 
-            await expect(SugarFeed.post(secondValue, secondTimestamp))
+            await expect(glucoseFeed.post(secondValue, secondTimestamp))
                     .to
-                    .emit(SugarFeed, "Update")
+                    .emit(glucoseFeed, "Update")
                     .withArgs(secondValue, secondTimestamp);
         });
     });

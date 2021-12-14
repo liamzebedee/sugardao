@@ -5,7 +5,7 @@ pragma solidity ^0.8.9;
 import "./Owned.sol";
 
 // Internal references
-import "./MixinResolver.sol";
+import "../interfaces/IMixinResolver.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/addressresolver
 contract AddressResolver is Owned {
@@ -28,7 +28,7 @@ contract AddressResolver is Owned {
 
     /* ========= PUBLIC FUNCTIONS ========== */
 
-    function rebuildCaches(MixinResolver[] calldata destinations) external {
+    function rebuildCaches(IMixinResolver[] calldata destinations) external {
         for (uint i = 0; i < destinations.length; i++) {
             destinations[i].rebuildCache();
         }

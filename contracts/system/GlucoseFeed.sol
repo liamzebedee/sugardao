@@ -18,8 +18,50 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     // are able to represent.
     // 0-25 with single dp of accuracy is 250 values, which fits neatly into a byte.
     // The timestamp is encoded as a uint64.
-    uint256 public _latestDatum;
+    // uint256 public _latestDatum;
+    History public history;
     IDaobetic public daobetic;
+
+    // Store a compact history of updates so we can render a glucose line
+    // in the NFT.
+    // Maximum granularity between points is 2h. Any more and we won't interpolate.
+    // 2h = 2 * 60 * 60s = 7200
+    // ceil(log2(7200)) = 13 bits.
+    // Array of points:
+    // (uint8 val, uint16 deltaTime)
+    // how many in a word? 256 / 22 = 11
+    // how many values do we want to store? 
+    // roughly 1 value every 5mins, so 12 per hour, for 3h is 36.
+    // 36/11 = 3.27 ~= 4 storage slots
+    // we have the uint24 which is a defined type, uint22 isn't.
+    // let's just use that.
+    // ok so uint24 is an observation.
+    // how many do we store now? 
+    // 
+    // 24 bits per observation
+    // 36 observations = 864
+    // uint8 latest index 
+    // uint64 latest time
+    // = update max 2 words per update
+    struct History {
+        uint8 latestIndex;
+        uint64 latestUpdateTime;
+        bool initialized;
+        Observation[36] observations;
+    }
+
+    struct Observation {
+        uint8 val;
+        uint16 deltaTime;
+    }
+
+    function pushToHistory(uint8 value, uint64 timestamp, uint64 lastUpdatedTime) internal {
+        Observation memory observation;
+        observation.val = value;
+        observation.deltaTime = uint16(timestamp - lastUpdatedTime);
+        history.latestIndex = uint8((history.latestIndex + 1) % history.observations.length);
+        history.observations[history.latestIndex] = observation;
+    }
 
     event Update(uint8 value, uint64 timestamp);
 
@@ -32,8 +74,14 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         daobetic = _daobetic;
     }
 
-    function sugarRewards() internal pure returns (ISugarRewardsV1) {
-        return ISugarRewardsV1(address(0)); // TODO
+    function resolverAddressesRequired() public override pure returns (bytes32[] memory addresses) {
+        bytes32[] memory requiredAddresses = new bytes32[](1);
+        requiredAddresses[0] = bytes32("SugarRewards");
+        return requiredAddresses;
+    }
+
+    function sugarRewards() internal view returns (ISugarRewardsV1) {
+        return ISugarRewardsV1(requireAndGetAddress(bytes32("SugarRewards"))); // TODO
     }
 
     function freeze() external onlyOwner {
@@ -41,7 +89,9 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     }
 
     function latest() public view returns (uint8 value, uint64 lastUpdatedTime) {
-        return abi.decode(abi.encodePacked(_latestDatum), (uint8, uint64));
+        value = history.observations[history.latestIndex].val;
+        lastUpdatedTime = history.latestUpdateTime;
+        // return abi.decode(abi.encodePacked(_latestDatum), (uint8, uint64));
     }
 
     function post(uint8 _value, uint64 _timestamp) external onlyOwner {
@@ -50,9 +100,11 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         (, uint64 lastUpdatedTime) = latest();
 
         if(_timestamp > lastUpdatedTime) {
-            _latestDatum = uint256(bytes32(abi.encodePacked(_value, _timestamp)));
+            // _latestDatum = uint256(bytes32(abi.encodePacked(_value, _timestamp)));
+            pushToHistory(_value, _timestamp, history.latestUpdateTime);
+            history.latestUpdateTime = _timestamp;
 
-            sugarRewards().onGlucoseUpdate(_value);
+            // sugarRewards().onGlucoseUpdate(_value);
         }
 
         // Allow ingestion of old data, even if it was not an update.
@@ -62,8 +114,11 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     function backfill(bytes[] calldata _values) external onlyOwner {
         require(!frozen, "feed frozen");
         
+        uint64 lastTimestamp = 0;
         for(uint i = 0; i < _values.length; i++) {
-            (uint8 value, uint64 timestamp) = abi.decode(_values[i], (uint8, uint64)); 
+            (uint8 value, uint64 timestamp) = abi.decode(_values[i], (uint8, uint64));
+            pushToHistory(value, timestamp, lastTimestamp);
+            lastTimestamp = timestamp;
             emit Update(value, timestamp);
         }
     }

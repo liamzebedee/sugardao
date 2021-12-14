@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
+import "../interfaces/IMixinResolver.sol";
+
 // Inheritance
 import "./Owned.sol";
 
@@ -8,7 +10,7 @@ import "./Owned.sol";
 import "./AddressResolver.sol";
 
 // https://docs.synthetix.io/contracts/source/contracts/mixinresolver
-contract MixinResolver {
+contract MixinResolver is IMixinResolver {
     AddressResolver public resolver;
 
     mapping(bytes32 => address) private addressCache;
@@ -38,7 +40,7 @@ contract MixinResolver {
     /* ========== PUBLIC FUNCTIONS ========== */
 
     // Note: this function is public not external in order for it to be overridden and invoked via super in subclasses
-    function resolverAddressesRequired() public view returns (bytes32[] memory addresses) {}
+    function resolverAddressesRequired() public virtual view returns (bytes32[] memory addresses) {}
 
     function rebuildCache() public {
         bytes32[] memory requiredAddresses = resolverAddressesRequired();
