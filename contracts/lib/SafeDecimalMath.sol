@@ -1,12 +1,11 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
 // Libraries
-import "openzeppelin-solidity-2.3.0/contracts/math/SafeMath.sol";
+// import "@openzeppelin/solidity/math/SafeMath.sol";
 
 // https://docs.synthetix.io/contracts/source/libraries/safedecimalmath
 library SafeDecimalMath {
-    using SafeMath for uint;
-
     /* Number of decimal places in the representations. */
     uint8 public constant decimals = 18;
     uint8 public constant highPrecisionDecimals = 27;
@@ -43,7 +42,7 @@ library SafeDecimalMath {
      */
     function multiplyDecimal(uint x, uint y) internal pure returns (uint) {
         /* Divide by UNIT to remove the extra factor introduced by the product. */
-        return x.mul(y) / UNIT;
+        return x * y / UNIT;
     }
 
     /**
@@ -64,7 +63,7 @@ library SafeDecimalMath {
         uint precisionUnit
     ) private pure returns (uint) {
         /* Divide by UNIT to remove the extra factor introduced by the product. */
-        uint quotientTimesTen = x.mul(y) / (precisionUnit / 10);
+        uint quotientTimesTen = x * y / (precisionUnit / 10);
 
         if (quotientTimesTen % 10 >= 5) {
             quotientTimesTen += 10;
@@ -116,7 +115,7 @@ library SafeDecimalMath {
      */
     function divideDecimal(uint x, uint y) internal pure returns (uint) {
         /* Reintroduce the UNIT factor that will be divided out by y. */
-        return x.mul(UNIT).div(y);
+        return x * UNIT / y;
     }
 
     /**
@@ -132,7 +131,7 @@ library SafeDecimalMath {
         uint y,
         uint precisionUnit
     ) private pure returns (uint) {
-        uint resultTimesTen = x.mul(precisionUnit * 10).div(y);
+        uint resultTimesTen = x * (precisionUnit * 10) / y;
 
         if (resultTimesTen % 10 >= 5) {
             resultTimesTen += 10;
@@ -169,7 +168,7 @@ library SafeDecimalMath {
      * @dev Convert a standard decimal representation to a high precision one.
      */
     function decimalToPreciseDecimal(uint i) internal pure returns (uint) {
-        return i.mul(UNIT_TO_HIGH_PRECISION_CONVERSION_FACTOR);
+        return i * UNIT_TO_HIGH_PRECISION_CONVERSION_FACTOR;
     }
 
     /**
@@ -191,5 +190,13 @@ library SafeDecimalMath {
 
     function floorsub(uint a, uint b) internal pure returns (uint) {
         return b >= a ? 0 : a - b;
+    }
+
+    function _signedAbs(int x) internal pure returns (int) {
+        return x < 0 ? -x : x;
+    }
+
+    function _abs(int x) internal pure returns (uint) {
+        return uint(_signedAbs(x));
     }
 }

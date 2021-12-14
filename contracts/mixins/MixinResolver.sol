@@ -1,4 +1,5 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
 // Inheritance
 import "./Owned.sol";
@@ -12,7 +13,7 @@ contract MixinResolver {
 
     mapping(bytes32 => address) private addressCache;
 
-    constructor(address _resolver) internal {
+    constructor(address _resolver) {
         resolver = AddressResolver(_resolver);
     }
 

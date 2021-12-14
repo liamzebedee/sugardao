@@ -1,4 +1,5 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
 // Inheritance
 import "./Owned.sol";
@@ -10,7 +11,7 @@ import "./MixinResolver.sol";
 contract AddressResolver is Owned {
     mapping(bytes32 => address) public repository;
 
-    constructor(address _owner) public Owned(_owner) {}
+    constructor(address _owner) Owned(_owner) {}
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 

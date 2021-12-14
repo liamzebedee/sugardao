@@ -1,6 +1,7 @@
-pragma solidity ^0.5.16;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
-interface ISugarFeed {
+interface IGlucoseFeed {
     function bgl() external view returns (uint);
     function lastUpdatedTime() external view returns (uint);
 }

@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.9;
 
-
-import "../lib/SafeDecimalMath.sol";
-import "../mixins/Owned.sol";
-
-contract SugarDAO is Owned {
-    constructor(address _owner) public Owned(_owner) {
+contract SugarDAO {
+    // mapping(address => )
+    constructor(address _owner) {
     }
 
-    
+    function isApprovedGlucoseFeed(address feed) external returns (bool) {
+    }
 }
