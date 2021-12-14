@@ -1,6 +1,32 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
+
+
+function mockObservations(n) {
+  const coder = new ethers.utils.AbiCoder()
+  let data = []
+  // timestamp begins -3h ago.
+  let timestamp = Math.floor((Date.now() / 1000) - 60 * 60 * 3)
+  // bgl begins at 7.0 mmol/L.
+  let bgl = 70
+
+  for (let i = 0; i < n; i++) {
+    let datum = coder.encode(
+      ["uint8", "uint64"],
+      [ethers.BigNumber.from("" + bgl), ethers.BigNumber.from("" + timestamp)]
+    );
+    data.push(datum)
+    // timestamp increases by 5mins + 0-2mins.
+    timestamp += Math.round((5 * 60) + (2 * 60 * Math.random()))
+    // bgl increases +/- 0-3 mmol/L.
+    bgl += Math.round(3 * Math.random() * (Math.random() > 0.5 ? 1 : -1))
+    bgl = Math.max(bgl % 255, 0)
+  }
+
+  return data
+}
+
 describe.only("GlucoseFeed", async () => {
   let glucoseFeed;
   let accounts;
@@ -21,6 +47,22 @@ describe.only("GlucoseFeed", async () => {
       resolver.address
     );
   });
+
+  describe.only('backfill', async () => {
+    context('When called with an array of results', async () => {
+      it('imports it', async () => {
+        const MAX_OBSERVATIONS = 36;
+        const data = mockObservations(MAX_OBSERVATIONS + 10)
+
+        await glucoseFeed.backfill(data);
+
+        const history = await glucoseFeed.getHistory()
+        const latestObservations = history.slice(-MAX_OBSERVATIONS)
+        console.log(history)
+        expect(latestObservations).to.deep.equal(history);
+      })
+    })
+  })
 
   describe("post", async () => {
     context("When called by a non-owner", async () => {

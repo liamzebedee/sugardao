@@ -8,6 +8,8 @@ import "../interfaces/IGlucoseFeed.sol";
 import "../interfaces/ISugarRewardsV1.sol";
 import "../interfaces/IDaobetic.sol";
 
+import "hardhat/console.sol";
+
 // A blood glucose level feed.
 contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     bool public frozen = false;
@@ -18,7 +20,6 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     // are able to represent.
     // 0-25 with single dp of accuracy is 250 values, which fits neatly into a byte.
     // The timestamp is encoded as a uint64.
-    // uint256 public _latestDatum;
     History public history;
     IDaobetic public daobetic;
 
@@ -43,24 +44,18 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     // uint8 latest index 
     // uint64 latest time
     // = update max 2 words per update
+
+    uint8 constant MAX_OBSERVATIONS = 36;
+
     struct History {
         uint8 latestIndex;
         uint64 latestUpdateTime;
         bool initialized;
-        Observation[36] observations;
+        Observation[MAX_OBSERVATIONS] observations;
     }
-
     struct Observation {
         uint8 val;
         uint16 deltaTime;
-    }
-
-    function pushToHistory(uint8 value, uint64 timestamp, uint64 lastUpdatedTime) internal {
-        Observation memory observation;
-        observation.val = value;
-        observation.deltaTime = uint16(timestamp - lastUpdatedTime);
-        history.latestIndex = uint8((history.latestIndex + 1) % history.observations.length);
-        history.observations[history.latestIndex] = observation;
     }
 
     event Update(uint8 value, uint64 timestamp);
@@ -88,10 +83,37 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         frozen = true;
     }
 
+    function pushToHistory(uint8 value, uint64 timestamp, uint64 lastUpdatedTime) internal {
+        require(timestamp > lastUpdatedTime, "invalid ordering");
+        Observation memory observation;
+        observation.val = value;
+        observation.deltaTime = uint16(timestamp - lastUpdatedTime);
+        history.latestIndex = uint8((history.latestIndex + 1) % MAX_OBSERVATIONS);
+        history.observations[history.latestIndex] = observation;
+    }
+
+    function getHistory() public view returns (Observation[36] memory values) {
+        uint8 j = 0;
+
+        // Go backwards through array.
+        uint8 i = history.latestIndex;
+        do {
+            Observation storage observation = history.observations[i];
+            values[j] = observation;
+            unchecked {
+                // Loop back around starting at the MAX_OBSERVATIONS index.
+                // We can't use `history.observations.length` here (TODO: why?).
+                i = i == 0 ? (MAX_OBSERVATIONS - 1) : i - 1;
+            }
+            j++;
+        } while(i != history.latestIndex);
+
+        return values;
+    }
+
     function latest() public view returns (uint8 value, uint64 lastUpdatedTime) {
         value = history.observations[history.latestIndex].val;
         lastUpdatedTime = history.latestUpdateTime;
-        // return abi.decode(abi.encodePacked(_latestDatum), (uint8, uint64));
     }
 
     function post(uint8 _value, uint64 _timestamp) external onlyOwner {
@@ -100,7 +122,6 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         (, uint64 lastUpdatedTime) = latest();
 
         if(_timestamp > lastUpdatedTime) {
-            // _latestDatum = uint256(bytes32(abi.encodePacked(_value, _timestamp)));
             pushToHistory(_value, _timestamp, history.latestUpdateTime);
             history.latestUpdateTime = _timestamp;
 
@@ -111,6 +132,7 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         emit Update(_value, _timestamp);
     }
 
+    // Backfill the observations array with data.
     function backfill(bytes[] calldata _values) external onlyOwner {
         require(!frozen, "feed frozen");
         
