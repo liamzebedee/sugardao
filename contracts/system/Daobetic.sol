@@ -147,7 +147,7 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
         string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8]));
         output = string(abi.encodePacked(output, parts[9], parts[10], parts[11], parts[12], parts[13], parts[14], parts[15], parts[16]));
         
-        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Bag #', Utils.toString(tokenId), '", "description": "Loot is randomized adventurer gear generated and stored on chain. Stats, images, and other functionality are intentionally omitted for others to interpret. Feel free to use Loot in any way you want.", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
+        string memory json = Base64.encode(bytes(string(abi.encodePacked('{"name": "Daobetic #', Utils.toString(tokenId), '", "description": "My broken pancreas - your NFT. Own a stake of diabetes. Get exposure to SUGAR and receive rewards based on my performance.", "image": "data:image/svg+xml;base64,', Base64.encode(bytes(output)), '"}'))));
         output = string(abi.encodePacked('data:application/json;base64,', json));
 
         return output;
