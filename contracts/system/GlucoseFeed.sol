@@ -85,11 +85,9 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         do {
             Observation storage observation = history.observations[i];
             values[MAX_OBSERVATIONS - 1 - j] = observation;
-            unchecked {
-                // Loop back around starting at the MAX_OBSERVATIONS index.
-                // We can't use `history.observations.length` here (TODO: why?).
-                i = i == 0 ? (MAX_OBSERVATIONS - 1) : i - 1;
-            }
+            // Loop back around starting at the MAX_OBSERVATIONS index.
+            // We can't use `history.observations.length` here (TODO: why?).
+            i = i == 0 ? (MAX_OBSERVATIONS - 1) : i - 1;
             j++;
         } while(i != history.latestIndex);
 

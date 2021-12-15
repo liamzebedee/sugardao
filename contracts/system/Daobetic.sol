@@ -22,11 +22,10 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
     // ========== CONSTANTS ==========
     uint public constant UNIT = 1e18;
     
-
     // ========== STATE VARIABLES ==========
     
     // The targets for the diabetic, in mmol/L.
-    // These are set in governance with the sugardao. 
+    // These are set in governance with the sugardao.
     uint public bgHighUpperBound = 18 * 1e18;
     uint public bgLowUpperBound = 5 * 1e18;
     uint public bgLowLowerBound = 0 * 1e18;
@@ -102,15 +101,21 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
         uint64 timeMax = 60*60*3;
         uint64 axisMax = 350;
 
-        d = d
-            .concat("M ")
-            .concat(Utils.toString(time))
-            .concat(",")
-            .concat(Utils.toString(points[0].val));
+        bool initFirst = false;
         
         for(uint i = 1; i < points.length; i++) {
             if(points[i].val == 0) {
                 // Special case: glucose data is not complete yet.
+                continue;
+            }
+
+            if(!initFirst) {
+                d = d
+                    .concat("M ")
+                    .concat(Utils.toString(time))
+                    .concat(",")
+                    .concat(Utils.toString(points[0].val));
+                initFirst = true;
                 continue;
             }
 
