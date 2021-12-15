@@ -8,8 +8,8 @@ function mockObservations(n) {
     let data = []
     // timestamp begins -3h ago.
     let timestamp = Math.floor((Date.now() / 1000) - 60 * 60 * 3)
-    // bgl begins at 7.0 mmol/L.
-    let bgl = 70
+    // bgl begins at 12.0 mmol/L.
+    let bgl = 120
 
     for (let i = 0; i < n; i++) {
         let datum = coder.encode(
@@ -61,12 +61,18 @@ describe.only("Daobetic", async () => {
         context('when calling tokenURI', async () => {
             it('imports it', async () => {
                 const MAX_OBSERVATIONS = 36;
-                const data = mockObservations(MAX_OBSERVATIONS + 10)
+                const data = mockObservations(5)
                 await glucoseFeed.backfill(data);
+
+                console.log(
+                    await glucoseFeed.getHistory()
+                )
 
                 const tokenURI = await daobetic.tokenURI(ethers.BigNumber.from("420"))
                 const metadata = JSON.parse(atob(tokenURI.split('data:application/json;base64,')[1]))
                 const svg = atob(metadata.image.split('data:image/svg+xml;base64,')[1])
+
+                // verify svg XML is well-formed.
                 console.log(svg)
             })
         })

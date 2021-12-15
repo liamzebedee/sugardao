@@ -83,7 +83,8 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
     function getGlucose() internal view returns (string memory) {
         (uint8 glucoseValue, uint64 ts) = glucoseFeed.latest();
         // Convert to a decimal rep.
-        string memory glucoseString = Utils.toString(glucoseValue);
+        uint a = glucoseValue / 10;
+        uint b = glucoseValue % 10;
         
         uint ago;
         if(block.timestamp > ts) {
@@ -92,7 +93,7 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
             ago = 1;
         }
         
-        return string(abi.encodePacked(bytes(glucoseString)[0], ".", bytes(glucoseString)[1], " mmol/L", " (", Utils.toString(ago), " mins ago)"));
+        return string(abi.encodePacked(Utils.toString(a), ".", Utils.toString(b), " mmol/L", " (", Utils.toString(ago), " mins ago)"));
     }
 
     function getGlucoseLine() internal view returns (string memory d) {
@@ -110,7 +111,7 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
         for(uint i = 1; i < points.length; i++) {
             if(points[i].val == 0) {
                 // Special case: glucose data is not complete yet.
-                break;
+                continue;
             }
 
             time += points[i].deltaTime * axisMax / timeMax;
@@ -132,7 +133,7 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
 
         parts[3] = getGlucose();
 
-        parts[4] = string(abi.encodePacked('</text><path fill="none" stroke="steelblue" stroke-width="1.5" d="', getGlucoseLine() ,'"></path>'));
+        parts[4] = string(abi.encodePacked('</text><g transform="translate(10 60)"><path fill="none" stroke="steelblue" stroke-width="1.5" d="', getGlucoseLine() ,'"></path></g>'));
 
         // parts[5] = getHead(tokenId);
 
@@ -156,7 +157,7 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
 
         // parts[15] = getRing(tokenId);
 
-        parts[16] = '</text></svg>';
+        parts[16] = '</svg>';
 
         string memory output = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8]));
         output = string(abi.encodePacked(output, parts[9], parts[10], parts[11], parts[12], parts[13], parts[14], parts[15], parts[16]));

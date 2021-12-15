@@ -21,7 +21,7 @@ let addressResolver;
 async function deployContract({ contract, params, force = false, name = undefined }) {
   let target = name || contract
 
-  if (deployments.contracts[target]) {
+  if (deployments.contracts[target] && !force) {
     console.debug(gray(`Skipping ${target}, as it is already deployed`));
     return hre.ethers.getContractAt(contract, deployments.contracts[target].address)
   }
@@ -117,113 +117,46 @@ async function main() {
   // Deploy AddressResolver.
   // -----------------------
 
-  addressResolver = await deployContract({
-    contract: "AddressResolver",
-    params: [owner]
-  })
+  // addressResolver = await deployContract({
+  //   contract: "AddressResolver",
+  //   params: [owner]
+  // })
 
-  // Deploy SugarFeed and SugarOracle.
+  // Deploy GlucoseFeed and SugarOracle.
   // -----------------------
 
-  await deployContract({
-    contract: "SugarFeed",
+  let addressResolver = {
+    address: owner
+  }
+  const glucoseFeed = await deployContract({
+    contract: "GlucoseFeed",
     params: [owner, addressResolver.address],
   });
 
-  await deployContract({
-    contract: "SugarOracle",
-    params: [owner, addressResolver.address]
-  })
+  const daobetic = await deployContract({
+    contract: "Daobetic",
+    params: [owner, addressResolver.address],
+    force: true
+  });
 
-  // Deploy tokens
-  // -------------
+  await waitTx(
+    daobetic.setFeed(glucoseFeed.address)
+  )
 
-  async function deployToken({ name, contract }) {
-    // State.
-    const tokenState = await deployContract({
-      name: `TokenState${name}`,
-      contract: 'ERC20State',
-      params: [owner, ZERO_ADDRESS]
-    });
-    
-    // Proxy/Identity.
-    const proxy = await deployContract({
-      name: `Proxy${name}`,
-      contract: 'ProxyERC20',
-      params: [owner]
-    });
-
-    // Behaviour.
-    const token = await deployContract({
-      name,
-      contract,
-      params: [
-        addressOf(proxy),
-        addressOf(tokenState),
-        owner,
-        addressOf(addressResolver),
-      ]
-    });
-
-    await waitTx(
-      tokenState.setAssociatedContract(
-        addressOf(token)
-      )
-    )
-
-    await waitTx(
-      proxy.setTarget(
-        addressOf(token)
-      )
-    )
-
-    return token
-  }
-  
-  await deployToken({
-    name: "DIA",
-    contract: "DIA"
-  })
-  
-  await deployToken({
-    name: "iDIA",
-    contract: "iDIA"
-  })
-
-  const sugar = await deployToken({
-    name: "SUGAR",
-    contract: "SUGAR"
-  })
-
-
-  // Deploy loans.
-  // -------------
-
-  const sugarLoans = await deployContract({
-    contract: "SugarLoans",
-    params: [owner, addressResolver.address]
-  })
+  // await waitTx(
+  //   glucoseFeed.post(70, Math.floor(Date.now() / 1000))
+  // )
 
   // Import addresses.
   // -----------------
 
   console.debug("Updating the address resolver...");
 
-  const addressArgs = await getContractsForImport();
-  if (addressArgs.length) {
-    await importAddresses(addressArgs);
-    await rebuildCaches();
-  }
-
-
-  // Genesis.
-  // --------
-
-  if(!(await sugar.sweet())) {
-    await waitTx(
-      sugar.genesis()
-    )
-  }
+  // const addressArgs = await getContractsForImport();
+  // if (addressArgs.length) {
+  //   await importAddresses(addressArgs);
+  //   await rebuildCaches();
+  // }
 
   // Ok. We are done.
   console.debug(`Saving deployment info to ${deploymentFilePath}`)

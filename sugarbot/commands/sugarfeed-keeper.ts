@@ -52,12 +52,11 @@ async function run({
 	const account = await signer.getAddress()
 
 	const { 
-		SugarFeed: sugarFeed, 
-		SugarOracle: sugarOracle 
+		GlucoseFeed: glucoseFeed,  
 	} = sugardao.getContracts({ network, signerOrProvider: signer });
 
 	// Sanity check.
-	const owner = await sugarFeed.owner()
+	const owner = await glucoseFeed.owner()
 	if (owner != account) {
 		throw new Error(`SugarFeed has different owner to configured account.\n owner:${owner}\n configured account:${account}`)
 	}
@@ -67,22 +66,23 @@ async function run({
 
 	// Get state.
 	async function getLastUpdated() {
-		return new Date((await sugarFeed.lastUpdatedTime()).toNumber())
+		let latest = await glucoseFeed.latest()
+		return new Date(latest.lastUpdatedTime.toNumber())
 	}
 	let lastUpdatedTime = await getLastUpdated()
 	console.log(`Last updated: ${lastUpdatedTime}`)
 
 	// Setup events.
-	sugarFeed.on('Update', async (value) => {
+	glucoseFeed.on('Update', async (value) => {
 		lastUpdatedTime = await getLastUpdated()
-		logPrice()
+		// logPrice()
 		console.log(`${green('Update')}(value=${utils.formatEther(value)})`)
 	})
 
-	async function logPrice() {
-		const price = await sugarOracle.getPrice()
-		console.log(`$SUGAR = $` + yellow(utils.formatEther(price)))
-	}
+	// async function logPrice() {
+	// 	const price = await sugarOracle.getPrice()
+	// 	console.log(`$SUGAR = $` + yellow(utils.formatEther(price)))
+	// }
 
 	// Run main event loop.
 	async function pollAndPost() {
@@ -93,6 +93,9 @@ async function run({
 		const data = await res.json()
 
 		// Post.
+		if(data.length == 0) {
+			throw new Error("No glucose data from Nightscout.")
+		}
 		const latest = data[0]
 		const { date, sgv } = latest
 		if(date <= lastUpdatedTime) {
@@ -101,10 +104,22 @@ async function run({
 		console.debug(`Updating SugarFeed`)
 
 		try {
-			const tx = await sugarFeed.post(
-				utils.parseEther(`${fromMgToMmol(sgv)}`),
-				+(new Date),
-				txDefaults
+			
+			// const tx = await sugarFeed.post(
+			// 	utils.parseEther(`${fromMgToMmol(sgv)}`),
+			// 	+(new Date),
+			// 	txDefaults
+			// )
+
+			// clamp to range 0-25
+			let val = Math.min(fromMgToMmol(sgv), 25)
+			// now reduce dp's to 1.
+			val = Math.round(val * 10)
+			let ts = Math.floor(Date.now() / 1000)
+
+			const tx = await glucoseFeed.post(
+				ethers.BigNumber.from("" + val),
+				ethers.BigNumber.from("" + ts)
 			)
 			await tx.wait(1)
 		} catch (ex) {
@@ -112,7 +127,7 @@ async function run({
 		}
 	}
 
-	const POLL_INTERVAL = 1000 * 60 * 2
+	const POLL_INTERVAL = 1000 * 60 * 5
 	await pollAndPost()
 	const timeout = setInterval(() => pollAndPost(), POLL_INTERVAL)
 }
