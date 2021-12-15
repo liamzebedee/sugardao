@@ -28,23 +28,8 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     // Maximum granularity between points is 2h. Any more and we won't interpolate.
     // 2h = 2 * 60 * 60s = 7200
     // ceil(log2(7200)) = 13 bits.
-    // Array of points:
-    // (uint8 val, uint16 deltaTime)
-    // how many in a word? 256 / 22 = 11
-    // how many values do we want to store? 
-    // roughly 1 value every 5mins, so 12 per hour, for 3h is 36.
-    // 36/11 = 3.27 ~= 4 storage slots
-    // we have the uint24 which is a defined type, uint22 isn't.
-    // let's just use that.
-    // ok so uint24 is an observation.
-    // how many do we store now? 
-    // 
-    // 24 bits per observation
-    // 36 observations = 864
-    // uint8 latest index 
-    // uint64 latest time
-    // = update max 2 words per update
-
+    // We scale the domain to render the NFT very cheaply.
+    // Ideally, we can modify one storage slot per oracle update, as they come through quite frequently.
     uint8 constant MAX_OBSERVATIONS = 36;
 
     struct History {
@@ -59,7 +44,8 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
     constructor(address _owner, address _resolver) 
         Owned(_owner) 
         MixinResolver(_resolver)
-    {}
+    {
+    }
 
     function initialize(IDaobetic _daobetic) external {
         daobetic = _daobetic;
@@ -88,14 +74,17 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         history.observations[history.latestIndex] = observation;
     }
 
-    function getHistory() public view returns (Observation[36] memory values) {
+    /**
+     * Returns an array of observations, sorted by earliest first.
+     */
+    function getHistory() public view returns (Observation[MAX_OBSERVATIONS] memory values) {
         uint8 j = 0;
 
         // Go backwards through array.
         uint8 i = history.latestIndex;
         do {
             Observation storage observation = history.observations[i];
-            values[j] = observation;
+            values[MAX_OBSERVATIONS - 1 - j] = observation;
             unchecked {
                 // Loop back around starting at the MAX_OBSERVATIONS index.
                 // We can't use `history.observations.length` here (TODO: why?).
@@ -107,6 +96,7 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
         return values;
     }
 
+    // Gets the latest observation.
     function latest() public view returns (uint8 value, uint64 lastUpdatedTime) {
         value = history.observations[history.latestIndex].val;
         lastUpdatedTime = history.latestUpdateTime;
@@ -121,7 +111,10 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
             pushToHistory(_value, _timestamp, history.latestUpdateTime);
             history.latestUpdateTime = _timestamp;
 
-            // sugarRewards().onGlucoseUpdate(_value);
+            address sugarRewardsAddress = getAddress(bytes32("SugarRewards"));
+            if(sugarRewardsAddress != address(0x0)) {
+                ISugarRewardsV1(sugarRewardsAddress).onGlucoseUpdate(_value);
+            }
         }
 
         // Allow ingestion of old data, even if it was not an update.
@@ -139,5 +132,7 @@ contract GlucoseFeed is Owned, MixinResolver, IGlucoseFeed {
             lastTimestamp = timestamp;
             emit Update(value, timestamp);
         }
+
+        history.latestUpdateTime = lastTimestamp;
     }
 }

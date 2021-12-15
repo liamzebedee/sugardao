@@ -39,7 +39,6 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
         _;
     }
 
-
     constructor(address _owner, address _resolver) 
         Owned(_owner) 
         MixinResolver(_resolver)
@@ -82,8 +81,18 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
     }
 
     function getGlucose() internal view returns (string memory) {
-        (uint8 glucoseValue,) = glucoseFeed.latest();
-        return string(abi.encodePacked(glucoseValue, " mmol/L"));
+        (uint8 glucoseValue, uint64 ts) = glucoseFeed.latest();
+        // Convert to a decimal rep.
+        string memory glucoseString = Utils.toString(glucoseValue);
+        
+        uint ago;
+        if(block.timestamp > ts) {
+            ago = (block.timestamp - ts) / 60; // mins ago
+        } else {
+            ago = 1;
+        }
+        
+        return string(abi.encodePacked(bytes(glucoseString)[0], ".", bytes(glucoseString)[1], " mmol/L", " (", Utils.toString(ago), " mins ago)"));
     }
 
     function getGlucoseLine() internal view returns (string memory d) {
@@ -99,6 +108,11 @@ contract Daobetic is Owned, MixinResolver, ERC721, IDaobetic {
             .concat(Utils.toString(points[0].val));
         
         for(uint i = 1; i < points.length; i++) {
+            if(points[i].val == 0) {
+                // Special case: glucose data is not complete yet.
+                break;
+            }
+
             time += points[i].deltaTime * axisMax / timeMax;
             d = d
                 .concat(" L ")

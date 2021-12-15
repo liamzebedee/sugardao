@@ -78,6 +78,10 @@ contract MixinResolver is IMixinResolver {
         return _foundAddress;
     }
 
+    function getAddress(bytes32 name) internal view returns (address) {
+        return addressCache[name];
+    }
+
     /* ========== EVENTS ========== */
 
     event CacheUpdated(bytes32 name, address destination);

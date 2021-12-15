@@ -1,10 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-
-
 function mockObservations(n) {
   const coder = new ethers.utils.AbiCoder()
+  let encodedData = []
   let data = []
   // timestamp begins -3h ago.
   let timestamp = Math.floor((Date.now() / 1000) - 60 * 60 * 3)
@@ -16,7 +15,8 @@ function mockObservations(n) {
       ["uint8", "uint64"],
       [ethers.BigNumber.from("" + bgl), ethers.BigNumber.from("" + timestamp)]
     );
-    data.push(datum)
+    data.push([bgl, timestamp])
+    encodedData.push(datum)
     // timestamp increases by 5mins + 0-2mins.
     timestamp += Math.round((5 * 60) + (2 * 60 * Math.random()))
     // bgl increases +/- 0-3 mmol/L.
@@ -24,7 +24,7 @@ function mockObservations(n) {
     bgl = Math.max(bgl % 255, 0)
   }
 
-  return data
+  return { data, encodedData }
 }
 
 describe("GlucoseFeed", async () => {
@@ -48,18 +48,30 @@ describe("GlucoseFeed", async () => {
     );
   });
 
-  describe.only('backfill', async () => {
+  describe('getHistory', async () => {
+    it('returns the last n results', async () => {
+      const data = mockObservations(3)
+      await glucoseFeed.backfill(data);
+
+      const history = await glucoseFeed.getHistory()
+      expect(data).to.deep.equal(history);
+    })
+  })
+
+  describe('backfill', async () => {
     context('When called with an array of results', async () => {
       it('imports it', async () => {
-        const MAX_OBSERVATIONS = 36;
-        const data = mockObservations(MAX_OBSERVATIONS + 10)
+        const MAX_OBSERVATIONS = 36
+        const { data, encodedData } = mockObservations(MAX_OBSERVATIONS + 10)
 
-        await glucoseFeed.backfill(data);
+        await glucoseFeed.backfill(encodedData);
 
         const history = await glucoseFeed.getHistory()
-        const latestObservations = history.slice(-MAX_OBSERVATIONS)
-        console.log(history)
-        expect(latestObservations).to.deep.equal(history);
+        const expectedHistory = data.slice(-MAX_OBSERVATIONS)
+        
+        for (let i = 0; i < expectedHistory.length; i++) {
+          expect(history[i].val).to.equal(expectedHistory[i][0])
+        }
       })
     })
   })
